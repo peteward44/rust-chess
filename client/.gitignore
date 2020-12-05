@@ -1,1 +1,4 @@
-/target
+/target/.rustc_info.json
+/target/debug
+/target/rls
+/target/CACHEDIR.TAG

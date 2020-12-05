@@ -7,16 +7,16 @@ use bevy::{
 	sprite::collide_aabb::{collide, Collision},
 };
 use rand::Rng;
-use websocket::{ClientBuilder, Message};
-//use websocket::client::Client;
 
-// mod board;
-// mod input;
-// mod network;
+mod board;
+mod input;
+mod network;
+mod piecemanager;
 
-// use board::BoardPlugin;
-// use input::InputPlugin;
-// use network::NetworkPlugin;
+use board::BoardPlugin;
+use input::InputPlugin;
+use network::NetworkPlugin;
+use piecemanager::PieceManagerPlugin;
 
 /// An implementation of the classic game "Breakout"
 fn main() {
@@ -35,18 +35,13 @@ fn main() {
 		})
 		.add_resource(ClearColor(Color::rgb(0.9, 0.9, 0.9)))
 		.add_plugins(DefaultPlugins)
-		// .add_plugin(BoardPlugin)
-		// .add_plugin(InputPlugin)
-		// .add_plugin(NetworkPlugin)
+		.add_plugin(BoardPlugin)
+		.add_plugin(InputPlugin)
+		.add_plugin(NetworkPlugin)
+		.add_plugin(PieceManagerPlugin)
 		.add_startup_system(setup.system());
 
 	builder.run();
-}
-
-
-struct Tile {
-	x: i32,
-	y: i32
 }
 
 
@@ -56,9 +51,8 @@ fn setup(
 	asset_server: Res<AssetServer>,
 ) {
 	commands
-	   // cameras
 		.spawn(Camera2dComponents::default())
-		//.spawn(UiCameraComponents::default());
+		.spawn(UiCameraComponents::default())
 		// player
 		.spawn(SpriteComponents {
 			material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
