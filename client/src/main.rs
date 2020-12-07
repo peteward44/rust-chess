@@ -12,6 +12,7 @@ mod board;
 mod input;
 mod network;
 mod piecemanager;
+mod scalecamera;
 
 use board::BoardPlugin;
 use input::InputPlugin;
@@ -39,6 +40,7 @@ fn main() {
 		.add_plugin(InputPlugin)
 		.add_plugin(NetworkPlugin)
 		.add_plugin(PieceManagerPlugin)
+		.add_plugin(scalecamera::ScaleCameraPlugin)
 		.add_startup_system(setup.system());
 
 	builder.run();
@@ -52,12 +54,13 @@ fn setup(
 ) {
 	commands
 		.spawn(Camera2dComponents::default())
-		.spawn(UiCameraComponents::default())
+		.with(scalecamera::ScaleCamera::default())
+	//	.spawn(UiCameraComponents::default())
 		// player
 		.spawn(SpriteComponents {
 			material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
 			transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
-			sprite: Sprite::new(Vec2::new(200.0, 200.0)),
+			sprite: Sprite::new(Vec2::new(2000.0, 1000.0)),
 			..Default::default()
 		});
 		// .with(Player)
