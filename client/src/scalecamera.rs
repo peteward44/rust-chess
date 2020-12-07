@@ -7,6 +7,11 @@ use bevy::{
 use bevy::window::{WindowCreated, WindowResized};
 
 
+// constants
+pub const draw_window_w: f32 = 2560.0;
+pub const draw_window_h: f32 = 1440.0;
+pub const aspect_ratio: f32 = draw_window_w / draw_window_h;
+
 // entity
 pub struct ScaleCamera {
 	pub window_w : i32,
@@ -70,7 +75,7 @@ fn on_window_resize(
 			camera.window_w = w;
 			camera.window_h = h;
 			
-			println!("Window resize {}x{}", w, h );
+		//	println!("Window resize {}x{}", w, h );
 		}
 	}
 }
@@ -81,12 +86,27 @@ fn camera_movement_system(
 	mut query: Query<(&mut ScaleCamera, &mut Transform)>,
 ) {
 	for (mut camera, mut transform) in query.iter_mut() {
-		let ratio_w = 2560.0 / camera.window_w as f32;
-		let ratio_h = 1440.0 / camera.window_h as f32;
 		
-		println!("Window ratio {}x{}", ratio_w, ratio_h );
+		// plain simple scale direct to window size
+		// let ratio_w = 2560.0 / camera.window_w as f32;
+		// let ratio_h = 1440.0 / camera.window_h as f32;
+		// transform.scale = Vec3::new( ratio_w, ratio_h, 1.0 );
 		
+		// scale which maintains aspect ratio
+		let mut ratio_w = draw_window_w / camera.window_w as f32;
+		let desired_height = camera.window_w as f32 / aspect_ratio;
+		let mut ratio_h;
+		
+		// if window isn't tall enough to fit in desired height, reduce the size of the width instead
+		if ( desired_height > camera.window_h as f32 ) {
+			ratio_h = draw_window_h / camera.window_h as f32;
+			let desired_width = camera.window_h as f32 * aspect_ratio;
+			ratio_w = draw_window_w / desired_width;
+		} else {
+			ratio_h = draw_window_h / desired_height;
+		}
 		transform.scale = Vec3::new( ratio_w, ratio_h, 1.0 );
+		
 		// let (axis_h, axis_v, axis_float) = if options.enabled {
 			// (
 				// movement_axis(&keyboard_input, options.key_right, options.key_left),

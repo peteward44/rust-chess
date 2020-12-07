@@ -60,7 +60,7 @@ fn setup(
 		.spawn(SpriteComponents {
 			material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
 			transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
-			sprite: Sprite::new(Vec2::new(2000.0, 1000.0)),
+			sprite: Sprite::new(Vec2::new(scalecamera::draw_window_w, scalecamera::draw_window_h)),
 			..Default::default()
 		});
 		// .with(Player)
