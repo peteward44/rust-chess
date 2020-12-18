@@ -1,8 +1,6 @@
 // extern crate websocket;
 
-use bevy::{
-	prelude::*,
-};
+use bevy::prelude::*;
 // use websocket::{ClientBuilder, Message};
 
 pub struct NetworkPlugin;

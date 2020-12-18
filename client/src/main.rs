@@ -1,7 +1,4 @@
-use bevy::{
-	prelude::*,
-	render::pass::ClearColor,
-};
+use bevy::{prelude::*, render::pass::ClearColor};
 
 mod board;
 mod consts;
@@ -9,6 +6,7 @@ mod input;
 mod network;
 mod piecemanager;
 mod scalecamera;
+mod sprite_picker;
 
 use board::BoardPlugin;
 use input::InputPlugin;
@@ -38,6 +36,7 @@ fn main() {
 		.add_plugin(NetworkPlugin)
 		.add_plugin(PieceManagerPlugin)
 		.add_plugin(scalecamera::ScaleCameraPlugin)
+		.add_plugin(sprite_picker::SpritePickerPlugin)
 		.add_startup_system(setup.system());
 
 	builder.run();
@@ -51,6 +50,7 @@ fn setup(
 	commands
 		.spawn(Camera2dComponents::default())
 		.with(scalecamera::ScaleCamera::default())
+		.with(sprite_picker::SpritePickerCamera)
 		//	.spawn(UiCameraComponents::default())
 		// player
 		.spawn(SpriteComponents {

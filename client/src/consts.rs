@@ -1,4 +1,3 @@
-
 // sizes
 pub const BOARD_WIDTH: i32 = 8;
 pub const BOARD_HEIGHT: i32 = 8;

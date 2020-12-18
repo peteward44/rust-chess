@@ -21,6 +21,45 @@ impl Default for ScaleCamera {
 	}
 }
 
+impl ScaleCamera {
+	pub fn position_to_drawing_area(&self, pos: &Vec2) -> Option<Vec2> {
+		// basic scaling
+		// Some( Vec2::new(
+		// (pos.x() as f32 / self.window_w as f32) as f32 * DRAW_WINDOW_W,
+		// (pos.y() as f32 / self.window_h as f32) as f32 * DRAW_WINDOW_H
+		// ) )
+		// aspect ratio scaling
+		let desired_height = self.window_w as f32 / ASPECT_RATIO;
+		// if window isn't tall enough to fit in desired height, reduce the size of the width instead
+		if desired_height > self.window_h as f32 {
+			// black bars on left & right
+			let desired_width = self.window_h as f32 * ASPECT_RATIO;
+			let diff = (self.window_w as f32 - desired_width) / 2.0;
+			if pos.x() < diff || pos.x() > (self.window_w as f32 - diff) {
+				// out of bounds
+				None
+			} else {
+				Some(Vec2::new(
+					((pos.x() - diff) as f32 / desired_width as f32) as f32 * DRAW_WINDOW_W,
+					(pos.y() as f32 / self.window_h as f32) as f32 * DRAW_WINDOW_H,
+				))
+			}
+		} else {
+			// black bars on top & bottom
+			let diff = (self.window_h as f32 - desired_height) / 2.0;
+			if pos.y() < diff || pos.y() > (self.window_h as f32 - diff) {
+				// out of bounds
+				None
+			} else {
+				Some(Vec2::new(
+					(pos.x() as f32 / self.window_w as f32) as f32 * DRAW_WINDOW_W,
+					((pos.y() - diff) as f32 / desired_height as f32) as f32 * DRAW_WINDOW_H,
+				))
+			}
+		}
+	}
+}
+
 pub struct ScaleCameraPlugin;
 
 impl Plugin for ScaleCameraPlugin {
@@ -91,9 +130,7 @@ fn scale_maintain_aspect_ratio(window_w: i32, window_h: i32) -> Vec3 {
 	Vec3::new(ratio_w, ratio_h, 1.0)
 }
 
-fn camera_movement_system(
-	mut query: Query<(&ScaleCamera, &mut Transform)>,
-) {
+fn camera_movement_system(mut query: Query<(&ScaleCamera, &mut Transform)>) {
 	for (camera, mut transform) in query.iter_mut() {
 		transform.scale = scale_maintain_aspect_ratio(camera.window_w, camera.window_h);
 	}

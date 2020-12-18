@@ -1,7 +1,5 @@
 use super::consts;
-use bevy::{
-	prelude::*,
-};
+use bevy::prelude::*;
 
 pub enum PieceType {
 	ROOK,
