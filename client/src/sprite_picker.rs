@@ -58,7 +58,7 @@ fn detect_mouse_event(
 	mut my_events: ResMut<Events<MouseClick>>,
 	mouse_button_input_events: Res<Events<MouseButtonInput>>,
 	query: Query<(&SpritePicker, &Sprite, &GlobalTransform)>,
-	camera_query: Query<(&SpritePickerCamera, &Transform)>,
+	camera_query: Query<(&SpritePickerCamera, &GlobalTransform)>,
 ) {
 	// move mouse click from 0,0 in bottom left and into the centre of screen
 	let point = Vec3::new(
@@ -75,7 +75,7 @@ fn detect_mouse_event(
 			let cam_mat = camera_transform.compute_matrix();
 
 			for (sprite_picker, sprite, sprite_transform) in query.iter() {
-				let sprite_mat = sprite_transform.compute_matrix();
+				let sprite_mat = sprite_transform.compute_matrix().inverse();
 				let final_mat = sprite_mat * cam_mat;
 				let vec = final_mat.transform_point3(point);
 
@@ -87,8 +87,8 @@ fn detect_mouse_event(
 					&& vec.y() < half_height
 				{
 					println!(
-						"sprite clicked! event: {:?} position: {:?}",
-						event, mouse_pos.0
+						"sprite {} clicked! event: {:?} position: {:?}",
+						sprite_picker.name, event, mouse_pos.0
 					);
 					my_events.send(MouseClick {
 						name: sprite_picker.name.clone(),

@@ -88,7 +88,7 @@ fn scale_maintain_aspect_ratio(window_w: i32, window_h: i32) -> Vec3 {
 	} else {
 		ratio_h = DRAW_WINDOW_H / desired_height;
 	}
-	Vec3::new(-ratio_w, ratio_h, 1.0)
+	Vec3::new(ratio_w, ratio_h, 1.0)
 }
 
 fn camera_movement_system(mut query: Query<(&ScaleCamera, &mut Transform)>) {

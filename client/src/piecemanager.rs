@@ -37,7 +37,6 @@ pub struct PieceManagerPlugin;
 impl Plugin for PieceManagerPlugin {
 	fn build(&self, app: &mut AppBuilder) {
 		app.add_startup_system(startup.system());
-		//			.add_system(system.system());
 	}
 }
 
