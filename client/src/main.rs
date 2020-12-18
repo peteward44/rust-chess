@@ -52,7 +52,7 @@ fn setup(
 		.with(scalecamera::ScaleCamera::default())
 		.with(sprite_picker::SpritePickerCamera)
 		//	.spawn(UiCameraComponents::default())
-		// player
+		// background
 		.spawn(SpriteComponents {
 			material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
 			transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
@@ -62,20 +62,4 @@ fn setup(
 			)),
 			..Default::default()
 		});
-	// .with(Player)
-	// .with(Position { position: Vec2::new(0.0, 0.0) });
-	// map
-	// let mut rng = rand::thread_rng();
-	// for y in 0..10 {
-	// for x in 0..10 {
-	// commands
-	// .spawn(SpriteComponents {
-	// material: materials.add(Color::rgb( rng.gen_range(0.0, 1.0), rng.gen_range(0.0, 1.0), rng.gen_range(0.0, 1.0)).into()),
-	// transform: Transform::from_translation(Vec3::new(( x as f32 ) * 20.0, ( y as f32 ) * 20.0, 0.0)),
-	// sprite: Sprite::new(Vec2::new(32.0, 32.0)),
-	// ..Default::default()
-	// })
-	// .with(Tile { x: x, y: y });
-	// }
-	// }
 }

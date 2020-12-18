@@ -1,4 +1,3 @@
-use std::fmt;
 use bevy::window::{WindowCreated, WindowResized};
 use bevy::{
 	input::mouse::MouseButton, input::mouse::MouseButtonInput, input::ElementState, prelude::*,
@@ -27,7 +26,6 @@ pub struct MouseClick {
 	state: ElementState,
 }
 
-
 impl Plugin for SpritePickerPlugin {
 	fn build(&self, app: &mut AppBuilder) {
 		app.add_resource(MouseLoc(Vec2::new(0.0, 0.0)))
@@ -44,13 +42,6 @@ impl Plugin for SpritePickerPlugin {
 pub struct SpritePicker {
 	name: String,
 }
-
-// impl fmt::Display for SpritePicker {
-    // fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // write!(f, "{}", self.name)
-    // }
-// }
-
 
 impl SpritePicker {
 	pub fn new(name: &str) -> Self {
