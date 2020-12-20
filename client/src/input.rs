@@ -40,10 +40,10 @@ fn player_movement_system(
 	// let translation = &mut transform.translation;
 
 	// *translation.x_mut() += time.delta_seconds * directionx * 500.0;
-	// *translation.x_mut() = translation.x().min(380.0).max(-380.0);
+	// *translation.x_mut() = translation.x.min(380.0).max(-380.0);
 
 	// *translation.y_mut() += time.delta_seconds * directiony * 500.0;
-	// *translation.y_mut() = translation.y().min(380.0).max(-380.0);
+	// *translation.y_mut() = translation.y.min(380.0).max(-380.0);
 
 	// let message = Message::text(command);
 	// client.lock().unwrap().send_message(&message).unwrap(); // Send message

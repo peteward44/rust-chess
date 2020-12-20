@@ -24,7 +24,7 @@ impl Plugin for BoardPlugin {
 }
 
 fn startup(
-	mut commands: Commands,
+	commands: &mut Commands,
 	mut materials: ResMut<Assets<ColorMaterial>>,
 	_asset_server: Res<AssetServer>,
 ) {
@@ -47,7 +47,7 @@ fn startup(
 			let pos = consts::get_square_position(x, y);
 			println!("x={} y={} pos={:?}", x, y, pos);
 			commands
-				.spawn(SpriteComponents {
+				.spawn(SpriteBundle {
 					material: materials.add(colour.into()),
 					transform: Transform::from_translation(Vec3::new(pos.0, pos.1, 0.0)),
 					sprite: Sprite::new(Vec2::new(consts::SQUARE_WIDTH, consts::SQUARE_HEIGHT)),

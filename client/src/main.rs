@@ -21,8 +21,8 @@ fn main() {
 	builder
 		.add_resource(WindowDescriptor {
 			title: "Chess".to_string(),
-			width: 1366 as u32,
-			height: 768 as u32,
+			width: 1366.0,
+			height: 768.0,
 			resizable: true,
 			// mode: window::WindowMode::Fullscreen {use_size: false},
 			mode: bevy::window::WindowMode::Windowed,
@@ -43,17 +43,17 @@ fn main() {
 }
 
 fn setup(
-	mut commands: Commands,
+	commands: &mut Commands,
 	mut materials: ResMut<Assets<ColorMaterial>>,
-	_asset_server: Res<AssetServer>,
+//	_asset_server: Res<AssetServer>,
 ) {
 	commands
-		.spawn(Camera2dComponents::default())
+		.spawn(Camera2dBundle::default())
 		.with(scalecamera::ScaleCamera::default())
 		.with(sprite_picker::SpritePickerCamera)
-		//	.spawn(UiCameraComponents::default())
+		//	.spawn(UiCameraBundle::default())
 		// background
-		.spawn(SpriteComponents {
+		.spawn(SpriteBundle {
 			material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
 			transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
 			sprite: Sprite::new(Vec2::new(
@@ -62,7 +62,7 @@ fn setup(
 			)),
 			..Default::default()
 		// })
-		// .spawn(SpriteComponents {
+		// .spawn(SpriteBundle {
 			// material: materials.add(Color::rgb(1.0, 0.5, 1.0).into()),
 			// transform: Transform {
 				// translation: Vec3::new(-100.0, -100.0, 0.0),

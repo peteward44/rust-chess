@@ -12,7 +12,7 @@ impl Plugin for NetworkPlugin {
 }
 
 fn network_setup(
-	mut _commands: Commands,
+	_commands: &mut Commands,
 	mut _materials: ResMut<Assets<ColorMaterial>>,
 	_asset_server: Res<AssetServer>,
 ) {

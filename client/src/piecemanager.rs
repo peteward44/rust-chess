@@ -65,7 +65,7 @@ fn add_piece(
 	let index = piecetype_to_sprite_index(&piece.name, piece.is_white);
 	let pos = consts::get_square_position(piece.x, piece.y);
 	commands
-		.spawn(SpriteSheetComponents {
+		.spawn(SpriteSheetBundle {
 			transform: Transform {
 				translation: Vec3::new(pos.0, pos.1, 0.0),
 				//scale: Vec3::splat(0.05),
@@ -79,7 +79,7 @@ fn add_piece(
 }
 
 fn startup(
-	mut commands: Commands,
+	commands: &mut Commands,
 	mut materials: ResMut<Assets<ColorMaterial>>,
 	asset_server: Res<AssetServer>,
 	mut texture_atlases: ResMut<Assets<TextureAtlas>>,
@@ -102,56 +102,56 @@ fn startup(
 			second_row = 6;
 		}
 		add_piece(
-			&mut commands,
+			commands,
 			&mut materials,
 			&asset_server,
 			texture_atlas_handle.clone(),
 			Piece::new(0, first_row, PieceType::ROOK, is_white),
 		);
 		add_piece(
-			&mut commands,
+			commands,
 			&mut materials,
 			&asset_server,
 			texture_atlas_handle.clone(),
 			Piece::new(7, first_row, PieceType::ROOK, is_white),
 		);
 		add_piece(
-			&mut commands,
+			commands,
 			&mut materials,
 			&asset_server,
 			texture_atlas_handle.clone(),
 			Piece::new(1, first_row, PieceType::KNIGHT, is_white),
 		);
 		add_piece(
-			&mut commands,
+			commands,
 			&mut materials,
 			&asset_server,
 			texture_atlas_handle.clone(),
 			Piece::new(6, first_row, PieceType::KNIGHT, is_white),
 		);
 		add_piece(
-			&mut commands,
+			commands,
 			&mut materials,
 			&asset_server,
 			texture_atlas_handle.clone(),
 			Piece::new(2, first_row, PieceType::BISHOP, is_white),
 		);
 		add_piece(
-			&mut commands,
+			commands,
 			&mut materials,
 			&asset_server,
 			texture_atlas_handle.clone(),
 			Piece::new(5, first_row, PieceType::BISHOP, is_white),
 		);
 		add_piece(
-			&mut commands,
+			commands,
 			&mut materials,
 			&asset_server,
 			texture_atlas_handle.clone(),
 			Piece::new(3, first_row, PieceType::QUEEN, is_white),
 		);
 		add_piece(
-			&mut commands,
+			commands,
 			&mut materials,
 			&asset_server,
 			texture_atlas_handle.clone(),
@@ -160,7 +160,7 @@ fn startup(
 
 		for x in 0..consts::BOARD_WIDTH {
 			add_piece(
-				&mut commands,
+				commands,
 				&mut materials,
 				&asset_server,
 				texture_atlas_handle.clone(),

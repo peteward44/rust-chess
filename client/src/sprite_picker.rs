@@ -91,18 +91,18 @@ fn process_hitarea(
 ) {
 	let vec = hitarea_matrix.transform_point3(*point);
 
-	let half_width = size.x() / 2.0;
-	let half_height = size.y() / 2.0;
-	if vec.x() >= -half_width
-		&& vec.x() < half_width
-		&& vec.y() >= -half_height
-		&& vec.y() < half_height
+	let half_width = size.x / 2.0;
+	let half_height = size.y / 2.0;
+	if vec.x >= -half_width
+		&& vec.x < half_width
+		&& vec.y >= -half_height
+		&& vec.y < half_height
 	{
 		my_events.send(MouseClick {
 			name: name.to_string(),
 			button: event.button,
 			state: event.state.clone(),
-			pos: Vec2::new( vec.x(), vec.y() ),
+			pos: Vec2::new( vec.x, vec.y ),
 		});
 	}
 }
@@ -116,35 +116,38 @@ fn detect_mouse_event(
 	mouse_button_input_events: Res<Events<MouseButtonInput>>,
 	query: Query<(&SpritePicker, &Sprite, &GlobalTransform)>,
 	hitarea_query: Query<(&HitArea, &GlobalTransform)>,
-	hitarea_notransform_query: Query<With<&HitArea, Without<GlobalTransform>>>,
+	hitarea_notransform_query: Query<&HitArea, Without<GlobalTransform>>,
 	camera_query: Query<(&SpritePickerCamera, &GlobalTransform)>,
 ) {
 	// move mouse click from 0,0 in bottom left and into the centre of screen
-	// let point = Vec3::new(
-		// mouse_pos.0.x() - (window_size.0.x() / 2.0),
-		// mouse_pos.0.y() - (window_size.0.y() / 2.0),
-		// 0.0,
-	// );
+	let point = Vec3::new(
+		mouse_pos.0.x - (window_size.0.x / 2.0),
+		mouse_pos.0.y - (window_size.0.y / 2.0),
+		0.0,
+	);
 
-	// for event in state
-		// .mouse_button_event_reader
-		// .iter(&mouse_button_input_events)
-	// {
-		// for (_camera, camera_transform) in camera_query.iter() {
-			// let cam_mat = camera_transform.compute_matrix();
-			// for (sprite_picker, sprite, sprite_transform) in query.iter() {
-				// let sprite_mat = sprite_transform.compute_matrix().inverse() * cam_mat;
-				// process_hitarea( &sprite_picker.name, &sprite.size, &sprite_mat, &point, &event, &mut my_events );
-			// }
-			// for (hitarea, sprite_transform) in hitarea_query.iter() {
-				// let sprite_mat = sprite_transform.compute_matrix().inverse() * cam_mat;
-				// process_hitarea( &hitarea.name, &hitarea.size, &sprite_mat, &point, &event, &mut my_events );
-			// }
-			// for hitarea in hitarea_notransform_query.iter() {
-				// process_hitarea( &hitarea.name, &hitarea.size, &cam_mat, &point, &event, &mut my_events );
-			// }
-		// }
-	// }
+	for event in state
+		.mouse_button_event_reader
+		.iter(&mouse_button_input_events)
+	{
+		for (_camera, camera_transform) in camera_query.iter() {
+			let cam_mat = camera_transform.compute_matrix();
+			// sprites with SpritePicker type trait
+			for (sprite_picker, sprite, transform) in query.iter() {
+				let sprite_mat = transform.compute_matrix().inverse() * cam_mat;
+				process_hitarea( &sprite_picker.name, &sprite.size, &sprite_mat, &point, &event, &mut my_events );
+			}
+			// HitAreas with GlobalTransform traits
+			for (hitarea, transform) in hitarea_query.iter() {
+				let sprite_mat = transform.compute_matrix().inverse() * cam_mat;
+				process_hitarea( &hitarea.name, &hitarea.size, &sprite_mat, &point, &event, &mut my_events );
+			}
+			// Then HitAreas without GlobalTransform trait
+			for hitarea in hitarea_notransform_query.iter() {
+				process_hitarea( &hitarea.name, &hitarea.size, &cam_mat, &point, &event, &mut my_events );
+			}
+		}
+	}
 }
 
 fn mouse_movement_updating_system(
@@ -166,8 +169,8 @@ fn on_window_create(
 	let mut event_reader = created_event.get_reader();
 	for event in event_reader.iter(&created_event) {
 		if let Some(window) = windows.get(event.id) {
-			window_size.0.set_x(window.width() as f32);
-			window_size.0.set_y(window.height() as f32);
+			window_size.0.x = window.width() as f32;
+			window_size.0.y = window.height() as f32;
 		}
 	}
 }
@@ -180,7 +183,7 @@ fn on_window_resize(
 ) {
 	let mut event_reader = resize_event.get_reader();
 	for event in event_reader.iter(&resize_event) {
-		window_size.0.set_x(event.width as f32);
-		window_size.0.set_y(event.height as f32);
+		window_size.0.x = event.width as f32;
+		window_size.0.y = event.height as f32;
 	}
 }
