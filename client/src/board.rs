@@ -1,5 +1,5 @@
 use super::consts;
-use super::sprite_picker::{MouseClick, SpritePicker};
+use super::sprite_picker::{HitArea, MouseClick, SpritePicker};
 use bevy::prelude::*;
 
 // classes
@@ -53,8 +53,12 @@ fn startup(
 					sprite: Sprite::new(Vec2::new(consts::SQUARE_WIDTH, consts::SQUARE_HEIGHT)),
 					..Default::default()
 				})
-				.with(Square { x: x, y: y })
-				.with(SpritePicker::new(&format!("{} {}", x, y)));
+				.with(Square { x: x, y: y });
+				// .with(HitArea::new(
+					// &format!("{} {}", x, y),
+					// &Vec2::new(30.0, 30.0),
+				// ));
+			//.with(SpritePicker::new(&format!("{} {}", x, y)));
 		}
 	}
 }

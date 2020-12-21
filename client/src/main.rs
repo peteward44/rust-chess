@@ -45,7 +45,7 @@ fn main() {
 fn setup(
 	commands: &mut Commands,
 	mut materials: ResMut<Assets<ColorMaterial>>,
-//	_asset_server: Res<AssetServer>,
+	//	_asset_server: Res<AssetServer>,
 ) {
 	commands
 		.spawn(Camera2dBundle::default())
@@ -61,18 +61,5 @@ fn setup(
 				scalecamera::DRAW_WINDOW_H,
 			)),
 			..Default::default()
-		// })
-		// .spawn(SpriteBundle {
-			// material: materials.add(Color::rgb(1.0, 0.5, 1.0).into()),
-			// transform: Transform {
-				// translation: Vec3::new(-100.0, -100.0, 0.0),
-				// //scale: Vec3::splat(0.05),
-				// ..Default::default()
-			// },
-			// sprite: Sprite::new(Vec2::new(
-				// 100.0,
-				// 100.0,
-			// )),
-			// ..Default::default()
 		});
 }

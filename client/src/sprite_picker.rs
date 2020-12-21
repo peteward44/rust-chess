@@ -19,7 +19,6 @@ struct WindowSize(Vec2);
 /// ```
 pub struct SpritePickerCamera;
 
-
 /// Plugin class that should be added to your app builder
 /// ```
 /// builder.add_plugin(SpritePickerPlugin)
@@ -65,7 +64,6 @@ impl SpritePicker {
 	}
 }
 
-
 pub struct HitArea {
 	name: String,
 	size: Vec2,
@@ -80,7 +78,6 @@ impl HitArea {
 	}
 }
 
-
 fn process_hitarea(
 	name: &String,
 	size: &Vec2,
@@ -93,20 +90,15 @@ fn process_hitarea(
 
 	let half_width = size.x / 2.0;
 	let half_height = size.y / 2.0;
-	if vec.x >= -half_width
-		&& vec.x < half_width
-		&& vec.y >= -half_height
-		&& vec.y < half_height
-	{
+	if vec.x >= -half_width && vec.x < half_width && vec.y >= -half_height && vec.y < half_height {
 		my_events.send(MouseClick {
 			name: name.to_string(),
 			button: event.button,
 			state: event.state.clone(),
-			pos: Vec2::new( vec.x, vec.y ),
+			pos: Vec2::new(vec.x, vec.y),
 		});
 	}
 }
-
 
 fn detect_mouse_event(
 	mut state: Local<State>,
@@ -135,16 +127,37 @@ fn detect_mouse_event(
 			// sprites with SpritePicker type trait
 			for (sprite_picker, sprite, transform) in query.iter() {
 				let sprite_mat = transform.compute_matrix().inverse() * cam_mat;
-				process_hitarea( &sprite_picker.name, &sprite.size, &sprite_mat, &point, &event, &mut my_events );
+				process_hitarea(
+					&sprite_picker.name,
+					&sprite.size,
+					&sprite_mat,
+					&point,
+					&event,
+					&mut my_events,
+				);
 			}
 			// HitAreas with GlobalTransform traits
 			for (hitarea, transform) in hitarea_query.iter() {
 				let sprite_mat = transform.compute_matrix().inverse() * cam_mat;
-				process_hitarea( &hitarea.name, &hitarea.size, &sprite_mat, &point, &event, &mut my_events );
+				process_hitarea(
+					&hitarea.name,
+					&hitarea.size,
+					&sprite_mat,
+					&point,
+					&event,
+					&mut my_events,
+				);
 			}
 			// Then HitAreas without GlobalTransform trait
 			for hitarea in hitarea_notransform_query.iter() {
-				process_hitarea( &hitarea.name, &hitarea.size, &cam_mat, &point, &event, &mut my_events );
+				process_hitarea(
+					&hitarea.name,
+					&hitarea.size,
+					&cam_mat,
+					&point,
+					&event,
+					&mut my_events,
+				);
 			}
 		}
 	}
