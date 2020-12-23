@@ -15,28 +15,28 @@ struct WindowSize(Vec2);
 /// Trait to attach to the camera bundle you wish to track
 /// ```
 /// .spawn(Camera2dComponents::default())
-///		.with(sprite_picker::SpritePickerCamera)
+///		.with(hitarea::HitAreaCamera)
 /// ```
-pub struct SpritePickerCamera;
+pub struct HitAreaCamera;
 
 /// Plugin class that should be added to your app builder
 /// ```
-/// builder.add_plugin(SpritePickerPlugin)
+/// builder.add_plugin(HitAreaPlugin)
 /// ```
-pub struct SpritePickerPlugin;
+pub struct HitAreaPlugin;
 
 /// Mouse click event
 /// "name" is the name passed to the SpritePicker trait, "button" and "state" are the same from bevy's
 /// event system, and "pos" is the relative position in the hit area that the click occurred, from the centre of the area.
 #[derive(Debug)]
 pub struct MouseClick {
-	name: String,
-	button: MouseButton,
-	state: ElementState,
-	pos: Vec2,
+	pub name: String,
+	pub button: MouseButton,
+	pub state: ElementState,
+	pub pos: Vec2,
 }
 
-impl Plugin for SpritePickerPlugin {
+impl Plugin for HitAreaPlugin {
 	fn build(&self, app: &mut AppBuilder) {
 		app.add_resource(MouseLoc(Vec2::new(0.0, 0.0)))
 			.add_resource(WindowSize(Vec2::new(0.0, 0.0)))
@@ -106,10 +106,10 @@ fn detect_mouse_event(
 	window_size: Res<WindowSize>,
 	mut my_events: ResMut<Events<MouseClick>>,
 	mouse_button_input_events: Res<Events<MouseButtonInput>>,
-	query: Query<(&SpritePicker, &Sprite, &GlobalTransform)>,
+	spritepicker_query: Query<(&SpritePicker, &Sprite, &GlobalTransform)>,
 	hitarea_query: Query<(&HitArea, &GlobalTransform)>,
 	hitarea_notransform_query: Query<&HitArea, Without<GlobalTransform>>,
-	camera_query: Query<(&SpritePickerCamera, &GlobalTransform)>,
+	camera_query: Query<(&HitAreaCamera, &GlobalTransform)>,
 ) {
 	// move mouse click from 0,0 in bottom left and into the centre of screen
 	let point = Vec3::new(
@@ -125,7 +125,7 @@ fn detect_mouse_event(
 		for (_camera, camera_transform) in camera_query.iter() {
 			let cam_mat = camera_transform.compute_matrix();
 			// sprites with SpritePicker type trait
-			for (sprite_picker, sprite, transform) in query.iter() {
+			for (sprite_picker, sprite, transform) in spritepicker_query.iter() {
 				let sprite_mat = transform.compute_matrix().inverse() * cam_mat;
 				process_hitarea(
 					&sprite_picker.name,
@@ -200,3 +200,10 @@ fn on_window_resize(
 		window_size.0.y = event.height as f32;
 	}
 }
+
+
+#[cfg(test)]
+mod test {
+
+}
+

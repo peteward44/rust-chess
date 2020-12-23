@@ -6,7 +6,7 @@ mod input;
 mod network;
 mod piecemanager;
 mod scalecamera;
-mod sprite_picker;
+mod hitarea;
 
 use board::BoardPlugin;
 use input::InputPlugin;
@@ -36,7 +36,7 @@ fn main() {
 		.add_plugin(NetworkPlugin)
 		.add_plugin(PieceManagerPlugin)
 		.add_plugin(scalecamera::ScaleCameraPlugin)
-		.add_plugin(sprite_picker::SpritePickerPlugin)
+		.add_plugin(hitarea::HitAreaPlugin)
 		.add_startup_system(setup.system());
 
 	builder.run();
@@ -50,7 +50,7 @@ fn setup(
 	commands
 		.spawn(Camera2dBundle::default())
 		.with(scalecamera::ScaleCamera::default())
-		.with(sprite_picker::SpritePickerCamera)
+		.with(hitarea::HitAreaCamera)
 		//	.spawn(UiCameraBundle::default())
 		// background
 		.spawn(SpriteBundle {
