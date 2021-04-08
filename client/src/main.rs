@@ -19,7 +19,7 @@ fn main() {
 	let mut builder = App::build();
 
 	builder
-		.add_resource(WindowDescriptor {
+		.insert_resource(WindowDescriptor {
 			title: "Chess".to_string(),
 			width: 1366.0,
 			height: 768.0,
@@ -29,7 +29,7 @@ fn main() {
 			vsync: vsync,
 			..Default::default()
 		})
-		.add_resource(ClearColor(Color::rgb(0.9, 0.9, 0.9)))
+		.insert_resource(ClearColor(Color::rgb(0.9, 0.9, 0.9)))
 		.add_plugins(DefaultPlugins)
 		.add_plugin(BoardPlugin)
 		.add_plugin(InputPlugin)
@@ -43,23 +43,22 @@ fn main() {
 }
 
 fn setup(
-	commands: &mut Commands,
+	mut commands: Commands,
 	mut materials: ResMut<Assets<ColorMaterial>>,
 	//	_asset_server: Res<AssetServer>,
 ) {
-	commands
-		.spawn(Camera2dBundle::default())
-		.with(scalecamera::ScaleCamera::default())
-		.with(hitarea::HitAreaCamera)
+	commands.spawn_bundle(OrthographicCameraBundle::new_2d())	
+		.insert(scalecamera::ScaleCamera::default())
+		.insert(hitarea::HitAreaCamera);
 		//	.spawn(UiCameraBundle::default())
 		// background
-		.spawn(SpriteBundle {
-			material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
-			transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
-			sprite: Sprite::new(Vec2::new(
-				scalecamera::DRAW_WINDOW_W,
-				scalecamera::DRAW_WINDOW_H,
-			)),
-			..Default::default()
-		});
+	commands.spawn_bundle(SpriteBundle {
+		material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
+		transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
+		sprite: Sprite::new(Vec2::new(
+			scalecamera::DRAW_WINDOW_W,
+			scalecamera::DRAW_WINDOW_H,
+		)),
+		..Default::default()
+	});
 }

@@ -32,12 +32,11 @@ impl Plugin for ScaleCameraPlugin {
 }
 
 fn on_window_create(
-	created_event: Res<Events<WindowCreated>>,
+	mut created_event: EventReader<WindowCreated>,
 	windows: Res<Windows>,
 	mut query: Query<&mut ScaleCamera>,
 ) {
-	let mut event_reader = created_event.get_reader();
-	for event in event_reader.iter(&created_event) {
+	for event in created_event.iter() {
 		if let Some(window) = windows.get(event.id) {
 			let w = window.width() as i32;
 			let h = window.height() as i32;
@@ -51,12 +50,11 @@ fn on_window_create(
 }
 
 fn on_window_resize(
-	resize_event: Res<Events<WindowResized>>,
+	mut resize_event: EventReader<WindowResized>,
 	mut _window: ResMut<WindowDescriptor>,
 	mut query: Query<&mut ScaleCamera>,
 ) {
-	let mut event_reader = resize_event.get_reader();
-	for event in event_reader.iter(&resize_event) {
+	for event in resize_event.iter() {
 		let w = event.width as i32;
 		let h = event.height as i32;
 
@@ -67,7 +65,6 @@ fn on_window_resize(
 	}
 }
 
-#[allow(dead_code)]
 fn scale_basic(window_w: i32, window_h: i32) -> Vec3 {
 	// plain simple scale direct to window size
 	let ratio_w = DRAW_WINDOW_W / window_w as f32;

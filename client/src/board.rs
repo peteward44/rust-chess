@@ -28,7 +28,7 @@ impl Plugin for BoardPlugin {
 	fn build(&self, app: &mut AppBuilder) {
 		app.add_event::<PieceMoved>()
 			.add_startup_system(startup.system())
-			.add_resource(BoardState {
+			.insert_resource(BoardState {
 				squares: HashMap::new(),
 				selected: None,
 			})
@@ -54,7 +54,7 @@ fn get_square_color( x: i32, y: i32 ) -> Color {
 }
 
 fn startup(
-	commands: &mut Commands,
+	mut commands: Commands,
 	mut materials: ResMut<Assets<ColorMaterial>>,
 	_asset_server: Res<AssetServer>,
 	mut board_state: ResMut<BoardState>,
@@ -67,25 +67,24 @@ fn startup(
 			let name = format!("{} {}", x, y);
 			let pos = consts::get_square_position(x, y);
 			commands
-				.spawn(SpriteBundle {
+				.spawn_bundle(SpriteBundle {
 					material: material,
 					transform: Transform::from_translation(Vec3::new(pos.0, pos.1, 0.0)),
 					sprite: Sprite::new(Vec2::new(consts::SQUARE_WIDTH, consts::SQUARE_HEIGHT)),
 					..Default::default()
 				})
-				.with(SpritePicker::new(&name));
+				.insert(SpritePicker::new(&name));
 			board_state.squares.insert( name, square );
 		}
 	}
 }
 
 fn square_clicked(
-	mut my_event_reader: Local<EventReader<MouseClick>>,
-	my_events: Res<Events<MouseClick>>,
+	mut my_event_reader: EventReader<MouseClick>,
 	mut board_state: ResMut<BoardState>,
 	mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-	for my_event in my_event_reader.iter(&my_events) {
+	for my_event in my_event_reader.iter() {
 		let square = board_state.squares.get(&my_event.name).unwrap();
 		println!("{:?} {:?}", square.x, square.y);
 		match &board_state.selected {

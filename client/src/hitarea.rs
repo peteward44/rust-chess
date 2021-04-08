@@ -4,11 +4,6 @@ use bevy::{
 	window::CursorMoved,
 };
 
-#[derive(Default)]
-struct State {
-	mouse_button_event_reader: EventReader<MouseButtonInput>,
-	cursor_moved_event_reader: EventReader<CursorMoved>,
-}
 struct MouseLoc(Vec2);
 struct WindowSize(Vec2);
 
@@ -38,11 +33,10 @@ pub struct MouseClick {
 
 impl Plugin for HitAreaPlugin {
 	fn build(&self, app: &mut AppBuilder) {
-		app.add_resource(MouseLoc(Vec2::new(0.0, 0.0)))
-			.add_resource(WindowSize(Vec2::new(0.0, 0.0)))
+		app.insert_resource(MouseLoc(Vec2::new(0.0, 0.0)))
+			.insert_resource(WindowSize(Vec2::new(0.0, 0.0)))
 			.add_event::<MouseClick>()
 			.add_system(detect_mouse_event.system())
-			.add_system(mouse_movement_updating_system.system())
 			.add_system(on_window_create.system())
 			.add_system(on_window_resize.system());
 	}
@@ -84,7 +78,7 @@ fn process_hitarea(
 	hitarea_matrix: &Mat4,
 	point: &Vec3,
 	event: &MouseButtonInput,
-	my_events: &mut ResMut<Events<MouseClick>>,
+	my_events: &mut EventWriter<MouseClick>,
 ) {
 	let vec = hitarea_matrix.transform_point3(*point);
 
@@ -101,11 +95,10 @@ fn process_hitarea(
 }
 
 fn detect_mouse_event(
-	mut state: Local<State>,
 	mouse_pos: ResMut<MouseLoc>,
 	window_size: Res<WindowSize>,
-	mut my_events: ResMut<Events<MouseClick>>,
-	mouse_button_input_events: Res<Events<MouseButtonInput>>,
+	mut my_event_reader: EventReader<MouseButtonInput>,
+	mut my_events: EventWriter<MouseClick>,
 	spritepicker_query: Query<(&SpritePicker, &Sprite, &GlobalTransform)>,
 	hitarea_query: Query<(&HitArea, &GlobalTransform)>,
 	hitarea_notransform_query: Query<&HitArea, Without<GlobalTransform>>,
@@ -118,9 +111,7 @@ fn detect_mouse_event(
 		0.0,
 	);
 
-	for event in state
-		.mouse_button_event_reader
-		.iter(&mouse_button_input_events)
+	for event in my_event_reader.iter()
 	{
 		for (_camera, camera_transform) in camera_query.iter() {
 			let cam_mat = camera_transform.compute_matrix();
@@ -132,7 +123,7 @@ fn detect_mouse_event(
 					&sprite.size,
 					&sprite_mat,
 					&point,
-					&event,
+					event,
 					&mut my_events,
 				);
 			}
@@ -144,7 +135,7 @@ fn detect_mouse_event(
 					&hitarea.size,
 					&sprite_mat,
 					&point,
-					&event,
+					event,
 					&mut my_events,
 				);
 			}
@@ -163,24 +154,13 @@ fn detect_mouse_event(
 	}
 }
 
-fn mouse_movement_updating_system(
-	mut state: Local<State>,
-	mut mouse_pos: ResMut<MouseLoc>,
-	cursor_moved_events: Res<Events<CursorMoved>>,
-) {
-	for event in state.cursor_moved_event_reader.iter(&cursor_moved_events) {
-		mouse_pos.0 = event.position;
-	}
-}
-
 // window create event
 fn on_window_create(
-	created_event: Res<Events<WindowCreated>>,
+	mut created_event: EventReader<WindowCreated>,
 	windows: Res<Windows>,
 	mut window_size: ResMut<WindowSize>,
 ) {
-	let mut event_reader = created_event.get_reader();
-	for event in event_reader.iter(&created_event) {
+	for event in created_event.iter() {
 		if let Some(window) = windows.get(event.id) {
 			window_size.0.x = window.width() as f32;
 			window_size.0.y = window.height() as f32;
@@ -190,12 +170,11 @@ fn on_window_create(
 
 // window resize event
 fn on_window_resize(
-	resize_event: Res<Events<WindowResized>>,
+	mut resize_event: EventReader<WindowResized>,
 	mut _window: ResMut<WindowDescriptor>,
 	mut window_size: ResMut<WindowSize>,
 ) {
-	let mut event_reader = resize_event.get_reader();
-	for event in event_reader.iter(&resize_event) {
+	for event in resize_event.iter() {
 		window_size.0.x = event.width as f32;
 		window_size.0.y = event.height as f32;
 	}
