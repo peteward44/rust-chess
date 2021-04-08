@@ -7,13 +7,14 @@ mod network;
 mod piecemanager;
 mod scalecamera;
 mod hitarea;
+mod loading;
 
 use board::BoardPlugin;
 use input::InputPlugin;
 use network::NetworkPlugin;
 use piecemanager::PieceManagerPlugin;
 
-/// An implementation of the classic game "Breakout"
+
 fn main() {
 	let vsync = false;
 	let mut builder = App::build();
@@ -37,6 +38,7 @@ fn main() {
 		.add_plugin(PieceManagerPlugin)
 		.add_plugin(scalecamera::ScaleCameraPlugin)
 		.add_plugin(hitarea::HitAreaPlugin)
+		.add_plugin(loading::LoadingQueuePlugin)
 		.add_startup_system(setup.system());
 
 	builder.run();
@@ -45,7 +47,6 @@ fn main() {
 fn setup(
 	mut commands: Commands,
 	mut materials: ResMut<Assets<ColorMaterial>>,
-	//	_asset_server: Res<AssetServer>,
 ) {
 	commands.spawn_bundle(OrthographicCameraBundle::new_2d())	
 		.insert(scalecamera::ScaleCamera::default())
