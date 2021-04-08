@@ -37,6 +37,7 @@ impl Plugin for HitAreaPlugin {
 			.insert_resource(WindowSize(Vec2::new(0.0, 0.0)))
 			.add_event::<MouseClick>()
 			.add_system(detect_mouse_event.system())
+			.add_system(mouse_movement_updating_system.system())
 			.add_system(on_window_create.system())
 			.add_system(on_window_resize.system());
 	}
@@ -179,6 +180,17 @@ fn on_window_resize(
 		window_size.0.y = event.height as f32;
 	}
 }
+
+
+fn mouse_movement_updating_system(
+	mut mouse_pos: ResMut<MouseLoc>,
+	mut cursor_moved_events: EventReader<CursorMoved>,
+) {
+	for event in cursor_moved_events.iter() {
+		mouse_pos.0 = event.position;
+	}
+}
+
 
 
 #[cfg(test)]

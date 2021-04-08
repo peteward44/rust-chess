@@ -78,6 +78,25 @@ fn add_piece(
 		.insert(piece);
 }
 
+
+
+// fn load_textures(mut rpg_sprite_handles: ResMut<RpgSpriteHandles>, asset_server: Res<AssetServer>) {
+    // rpg_sprite_handles.handles = asset_server.load_folder("textures/rpg").unwrap();
+// }
+
+// fn check_textures(
+    // mut state: ResMut<State<AppState>>,
+    // rpg_sprite_handles: ResMut<RpgSpriteHandles>,
+    // asset_server: Res<AssetServer>,
+// ) {
+    // if let LoadState::Loaded =
+        // asset_server.get_group_load_state(rpg_sprite_handles.handles.iter().map(|handle| handle.id))
+    // {
+        // state.set(AppState::Finished).unwrap();
+    // }
+// }
+
+
 fn startup(
 	mut commands: Commands,
 	mut materials: ResMut<Assets<ColorMaterial>>,
