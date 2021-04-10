@@ -65,6 +65,7 @@ pub struct HitArea {
 }
 
 impl HitArea {
+	#[allow(dead_code)]
 	pub fn new(name: &str, size: &Vec2) -> Self {
 		HitArea {
 			name: name.to_owned(),

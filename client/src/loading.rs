@@ -1,90 +1,43 @@
-use bevy::{asset::LoadState, prelude::*, sprite::TextureAtlasBuilder};
-use std::collections::{ HashMap };
-use std::vec::Vec;
+use super::consts;
+use bevy::{asset::LoadState, prelude::*};
 
 
-#[derive(Debug)]
-pub struct LoadingFinished;
-
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-enum LoadingState {
-	Init,
-	Loading,
-	Finished,
-}
-
-// entity
-pub struct LoadingQueue {
-	state: LoadingState,
-	handles: HashMap<String, Handle<Texture>>,
-	files_to_load: Vec<String>,
-}
-
-impl Default for LoadingQueue {
-	fn default() -> Self {
-		Self {
-			state: LoadingState::Init,
-			handles: HashMap::new(),
-			files_to_load: Vec::new(),
-		}
-	}
-}
-
-impl LoadingQueue {
-	pub fn new() -> LoadingQueue {
-		LoadingQueue {
-			state: LoadingState::Init,
-			handles: HashMap::new(),
-			files_to_load: Vec::new(),
-		}
-	}
-
-	fn init_loading( &mut self, asset_server: &Res<AssetServer>, ) {
-		for file in self.files_to_load.iter() {
-			self.handles.insert( file.to_string(), asset_server.load(file.as_str()) );
-		}
-	}
-	
-	pub fn add( &mut self, name: &str ) -> &mut Self {
-		self.files_to_load.push( name.to_string() );
-		self
-	}
+#[derive(Default)]
+struct LoadHandles {
+    handles: Vec<HandleUntyped>,
 }
 
 
-fn process(
-		mut my_events: EventWriter<LoadingFinished>,
-		asset_server: Res<AssetServer>,
-		mut query: Query<(&mut LoadingQueue)>,
+fn load_textures(
+	mut load_handles: ResMut<LoadHandles>,
+	asset_server: Res<AssetServer>,
 ) {
-	for mut loading_queue in query.iter_mut() {
-		match ( loading_queue.state ) {
-			LoadingState::Init => {
-				loading_queue.init_loading( &asset_server );
-				loading_queue.state = LoadingState::Loading;
-			},
-			LoadingState::Loading => {
-				if let LoadState::Loaded =
-					asset_server.get_group_load_state(loading_queue.handles.values().map(|handle| handle.id))
-				{
-					loading_queue.state = LoadingState::Finished;
-					my_events.send( LoadingFinished );
-				}
-			},
-			LoadingState::Finished => {
-			},
-		}
+	load_handles.handles = asset_server.load_folder("textures/primary").unwrap();
+}
+
+
+fn check_textures(
+	load_handles: ResMut<LoadHandles>,
+    mut state: ResMut<State<consts::GameState>>,
+    asset_server: Res<AssetServer>,
+) {
+	//let handle: Handle<Texture> = asset_server.get_handle( "textures/pieces.png" );
+	if let LoadState::Loaded = asset_server.get_group_load_state( load_handles.handles.iter().map( |handle| handle.id ) ) {
+		state.set( consts::GameState::Menu ).unwrap();
 	}
 }
 
-pub struct LoadingQueuePlugin;
 
-impl Plugin for LoadingQueuePlugin {
+
+// Plugin
+pub struct LoadTexturesPlugin;
+
+impl Plugin for LoadTexturesPlugin {
 	fn build(&self, app: &mut AppBuilder) {
-        app
-			.add_event::<LoadingFinished>()
-			.add_system(process.system());
+		app
+			.init_resource::<LoadHandles>()
+			.add_system_set(SystemSet::on_enter(consts::GameState::Loading).with_system(load_textures.system()))
+			.add_system_set(SystemSet::on_update(consts::GameState::Loading).with_system(check_textures.system()));
 	}
 }
 

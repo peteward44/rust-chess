@@ -2,7 +2,7 @@ use crate::consts;
 use crate::hitarea::{MouseClick, SpritePicker};
 use bevy::prelude::*;
 use std::collections::HashMap;
-use std::rc::Rc;
+//use std::rc::Rc;
 
 // classes
 #[allow(dead_code)]

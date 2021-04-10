@@ -65,6 +65,7 @@ fn on_window_resize(
 	}
 }
 
+#[allow(dead_code)]
 fn scale_basic(window_w: i32, window_h: i32) -> Vec3 {
 	// plain simple scale direct to window size
 	let ratio_w = DRAW_WINDOW_W / window_w as f32;

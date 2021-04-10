@@ -7,6 +7,7 @@ mod network;
 mod piecemanager;
 mod scalecamera;
 mod hitarea;
+mod loading;
 
 use board::BoardPlugin;
 use input::InputPlugin;
@@ -30,8 +31,9 @@ fn main() {
 			..Default::default()
 		})
 		.insert_resource(ClearColor(Color::rgb(0.9, 0.9, 0.9)))
-		.add_state(consts::GameState::LoadingTextures)
+		.add_state(consts::GameState::Init)
 		.add_plugins(DefaultPlugins)
+		.add_plugin(loading::LoadTexturesPlugin)
 		.add_plugin(BoardPlugin)
 		.add_plugin(InputPlugin)
 		.add_plugin(NetworkPlugin)
@@ -45,6 +47,7 @@ fn main() {
 
 fn setup(
 	mut commands: Commands,
+	mut state: ResMut<State<consts::GameState>>,
 	mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
 	commands.spawn_bundle(OrthographicCameraBundle::new_2d())	
@@ -61,4 +64,6 @@ fn setup(
 		)),
 		..Default::default()
 	});
+	
+	state.set( consts::GameState::Loading ).unwrap();
 }

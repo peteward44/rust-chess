@@ -1,6 +1,5 @@
 use super::consts;
 use bevy::prelude::*;
-use bevy::asset::LoadState;
 
 pub enum PieceType {
 	ROOK,
@@ -32,31 +31,13 @@ impl Piece {
 	}
 }
 
-// entity
+// Plugin
 pub struct PieceManagerPlugin;
 
 impl Plugin for PieceManagerPlugin {
 	fn build(&self, app: &mut AppBuilder) {
 		app
-			.add_system_set(SystemSet::on_enter(consts::GameState::LoadingTextures).with_system(load_textures.system()))
-			.add_system_set(SystemSet::on_update(consts::GameState::LoadingTextures).with_system(check_textures.system()))
-			.add_system_set(SystemSet::on_exit(consts::GameState::LoadingTextures).with_system(startup.system()));
-	}
-}
-
-
-fn load_textures(asset_server: Res<AssetServer>) {
-	 let texture_handle: Handle<Texture> = asset_server.load("textures/pieces.png");
-}
-
-
-fn check_textures(
-    mut state: ResMut<State<consts::GameState>>,
-    asset_server: Res<AssetServer>,
-) {
-	let handle: Handle<Texture> = asset_server.get_handle( "textures/pieces.png" );
-	if let LoadState::Loaded = asset_server.get_load_state( handle ) {
-		state.set( consts::GameState::LoadingEverythingElse ).unwrap();
+			.add_system_set(SystemSet::on_exit(consts::GameState::Loading).with_system(startup.system()));
 	}
 }
 
@@ -77,7 +58,7 @@ fn piecetype_to_sprite_index(piece_type: &PieceType, is_white: bool) -> u32 {
 }
 
 fn add_piece(
-	mut commands: &mut Commands,
+	commands: &mut Commands,
 	mut _materials: &mut ResMut<Assets<ColorMaterial>>,
 	_asset_server: &Res<AssetServer>,
 	texture_atlas_handle: Handle<TextureAtlas>,
@@ -107,7 +88,7 @@ fn startup(
 	asset_server: Res<AssetServer>,
 	mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-	let texture_handle: Handle<Texture> = asset_server.get_handle( "textures/pieces.png" );
+	let texture_handle: Handle<Texture> = asset_server.get_handle( "textures/primary/pieces.png" );
 	let texture_atlas = TextureAtlas::from_grid(
 		texture_handle,
 		Vec2::new(consts::PIECE_WIDTH, consts::PIECE_HEIGHT),
@@ -192,12 +173,3 @@ fn startup(
 		}
 	}
 }
-
-// fn system(
-// time: Res<Time>,
-// keyboard_input: Res<Input<KeyCode>>,
-// client: ResMut<Mutex<websocket::sync::Client<std::net::TcpStream>>>,
-// mut query: Query<(&Player, &mut Transform)>,
-// ) {
-
-// }

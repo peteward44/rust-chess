@@ -23,8 +23,8 @@ pub fn get_square_position(x: i32, y: i32) -> (f32, f32) {
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
 pub enum GameState {
-	LoadingTextures,
-	LoadingEverythingElse,
+	Init,
+	Loading,
 	Menu,
     Playing,
     GameOver,
