@@ -1,5 +1,6 @@
 use super::consts;
 use bevy::prelude::*;
+use bevy::asset::LoadState;
 
 pub enum PieceType {
 	ROOK,
@@ -36,9 +37,29 @@ pub struct PieceManagerPlugin;
 
 impl Plugin for PieceManagerPlugin {
 	fn build(&self, app: &mut AppBuilder) {
-		app.add_startup_system(startup.system());
+		app
+			.add_system_set(SystemSet::on_enter(consts::GameState::LoadingTextures).with_system(load_textures.system()))
+			.add_system_set(SystemSet::on_update(consts::GameState::LoadingTextures).with_system(check_textures.system()))
+			.add_system_set(SystemSet::on_exit(consts::GameState::LoadingTextures).with_system(startup.system()));
 	}
 }
+
+
+fn load_textures(asset_server: Res<AssetServer>) {
+	 let texture_handle: Handle<Texture> = asset_server.load("textures/pieces.png");
+}
+
+
+fn check_textures(
+    mut state: ResMut<State<consts::GameState>>,
+    asset_server: Res<AssetServer>,
+) {
+	let handle: Handle<Texture> = asset_server.get_handle( "textures/pieces.png" );
+	if let LoadState::Loaded = asset_server.get_load_state( handle ) {
+		state.set( consts::GameState::LoadingEverythingElse ).unwrap();
+	}
+}
+
 
 fn piecetype_to_sprite_index(piece_type: &PieceType, is_white: bool) -> u32 {
 	let mut base = 0;
@@ -80,30 +101,13 @@ fn add_piece(
 
 
 
-// fn load_textures(mut rpg_sprite_handles: ResMut<RpgSpriteHandles>, asset_server: Res<AssetServer>) {
-    // rpg_sprite_handles.handles = asset_server.load_folder("textures/rpg").unwrap();
-// }
-
-// fn check_textures(
-    // mut state: ResMut<State<AppState>>,
-    // rpg_sprite_handles: ResMut<RpgSpriteHandles>,
-    // asset_server: Res<AssetServer>,
-// ) {
-    // if let LoadState::Loaded =
-        // asset_server.get_group_load_state(rpg_sprite_handles.handles.iter().map(|handle| handle.id))
-    // {
-        // state.set(AppState::Finished).unwrap();
-    // }
-// }
-
-
 fn startup(
 	mut commands: Commands,
 	mut materials: ResMut<Assets<ColorMaterial>>,
 	asset_server: Res<AssetServer>,
 	mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-	let texture_handle = asset_server.load("textures/pieces.png");
+	let texture_handle: Handle<Texture> = asset_server.get_handle( "textures/pieces.png" );
 	let texture_atlas = TextureAtlas::from_grid(
 		texture_handle,
 		Vec2::new(consts::PIECE_WIDTH, consts::PIECE_HEIGHT),

@@ -7,7 +7,6 @@ mod network;
 mod piecemanager;
 mod scalecamera;
 mod hitarea;
-mod loading;
 
 use board::BoardPlugin;
 use input::InputPlugin;
@@ -31,6 +30,7 @@ fn main() {
 			..Default::default()
 		})
 		.insert_resource(ClearColor(Color::rgb(0.9, 0.9, 0.9)))
+		.add_state(consts::GameState::LoadingTextures)
 		.add_plugins(DefaultPlugins)
 		.add_plugin(BoardPlugin)
 		.add_plugin(InputPlugin)
@@ -38,7 +38,6 @@ fn main() {
 		.add_plugin(PieceManagerPlugin)
 		.add_plugin(scalecamera::ScaleCameraPlugin)
 		.add_plugin(hitarea::HitAreaPlugin)
-		.add_plugin(loading::LoadingQueuePlugin)
 		.add_startup_system(setup.system());
 
 	builder.run();
@@ -52,7 +51,7 @@ fn setup(
 		.insert(scalecamera::ScaleCamera::default())
 		.insert(hitarea::HitAreaCamera);
 		//	.spawn(UiCameraBundle::default())
-		// background
+	// background
 	commands.spawn_bundle(SpriteBundle {
 		material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
 		transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),

@@ -20,3 +20,12 @@ pub fn get_square_position(x: i32, y: i32) -> (f32, f32) {
 		start_y + (y as f32) * SQUARE_HEIGHT,
 	)
 }
+
+#[derive(Clone, Eq, PartialEq, Debug, Hash)]
+pub enum GameState {
+	LoadingTextures,
+	LoadingEverythingElse,
+	Menu,
+    Playing,
+    GameOver,
+}
