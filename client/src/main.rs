@@ -8,6 +8,7 @@ mod piecemanager;
 mod scalecamera;
 mod hitarea;
 mod loading;
+mod menu;
 
 use board::BoardPlugin;
 use input::InputPlugin;
@@ -34,6 +35,7 @@ fn main() {
 		.add_state(consts::GameState::Init)
 		.add_plugins(DefaultPlugins)
 		.add_plugin(loading::LoadTexturesPlugin)
+		.add_plugin(menu::MenuPlugin)
 		.add_plugin(BoardPlugin)
 		.add_plugin(InputPlugin)
 		.add_plugin(NetworkPlugin)
