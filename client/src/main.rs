@@ -9,6 +9,7 @@ mod scalecamera;
 mod hitarea;
 mod loading;
 mod menu;
+mod quit;
 
 use board::BoardPlugin;
 use input::InputPlugin;
@@ -42,6 +43,7 @@ fn main() {
 		.add_plugin(PieceManagerPlugin)
 		.add_plugin(scalecamera::ScaleCameraPlugin)
 		.add_plugin(hitarea::HitAreaPlugin)
+		.add_plugin(quit::QuitPlugin)
 		.add_startup_system(setup.system());
 
 	builder.run();

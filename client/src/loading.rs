@@ -34,6 +34,7 @@ fn on_enter(
 
 	// load textures
 	load_handles.handles = asset_server.load_folder("textures/primary").unwrap();
+	load_handles.handles.extend( asset_server.load_folder("fonts/primary").unwrap() );
 }
 
 
@@ -53,7 +54,6 @@ fn on_exit(
 	mut query: Query<(&Background, Entity)>
 ) {
 	for (_background, entity) in query.iter_mut() {
-		// despawn loading screen
 		commands.entity( entity ).despawn_recursive();
 	}
 }

@@ -13,6 +13,7 @@ struct Square {
 	material: Handle<ColorMaterial>,
 }
 
+// resources
 struct BoardState {
 	squares: HashMap<String, Square>,
 	selected: Option<Square>,
@@ -21,20 +22,6 @@ struct BoardState {
 // events
 pub struct PieceMoved;
 
-// entity
-pub struct BoardPlugin;
-
-impl Plugin for BoardPlugin {
-	fn build(&self, app: &mut AppBuilder) {
-		app.add_event::<PieceMoved>()
-			.add_startup_system(startup.system())
-			.insert_resource(BoardState {
-				squares: HashMap::new(),
-				selected: None,
-			})
-			.add_system(square_clicked.system());
-	}
-}
 
 fn get_square_color( x: i32, y: i32 ) -> Color {
 	let white = Color::rgb(
@@ -53,7 +40,7 @@ fn get_square_color( x: i32, y: i32 ) -> Color {
 	return white;
 }
 
-fn startup(
+fn on_enter(
 	mut commands: Commands,
 	mut materials: ResMut<Assets<ColorMaterial>>,
 	_asset_server: Res<AssetServer>,
@@ -74,6 +61,7 @@ fn startup(
 					..Default::default()
 				})
 				.insert(SpritePicker::new(&name));
+//				.insert(square.clone());
 			board_state.squares.insert( name, square );
 		}
 	}
@@ -99,5 +87,45 @@ fn square_clicked(
 		let mut color_mat = materials.get_mut(&square.material).unwrap();
 		color_mat.color = Color::rgb(1.0, 1.0, 1.0);
 		board_state.selected = Some(square.clone());
+	}
+}
+
+
+fn on_exit(
+	mut commands: Commands,
+	mut query: Query<(&Square, Entity)>
+) {
+	for (_square, entity) in query.iter_mut() {
+		commands.entity( entity ).despawn_recursive();
+	}
+}
+
+
+fn escape_key(
+	keys: Res<Input<KeyCode>>,
+    mut state: ResMut<State<consts::GameState>>,
+) {
+    if keys.just_pressed(KeyCode::Escape) {
+		state.set( consts::GameState::Menu );
+    }
+}
+
+
+// Plugin
+pub struct BoardPlugin;
+
+impl Plugin for BoardPlugin {
+	fn build(&self, app: &mut AppBuilder) {
+		app.add_event::<PieceMoved>()
+			.insert_resource(BoardState {
+				squares: HashMap::new(),
+				selected: None,
+			})
+			.add_system_set(SystemSet::on_enter(consts::GameState::Playing).with_system(on_enter.system()))
+			.add_system_set(SystemSet::on_update(consts::GameState::Playing)
+				.with_system(square_clicked.system())
+				.with_system(escape_key.system())
+			)
+			.add_system_set(SystemSet::on_exit(consts::GameState::Playing).with_system(on_exit.system()));
 	}
 }

@@ -31,16 +31,6 @@ impl Piece {
 	}
 }
 
-// Plugin
-pub struct PieceManagerPlugin;
-
-impl Plugin for PieceManagerPlugin {
-	fn build(&self, app: &mut AppBuilder) {
-		app
-			.add_system_set(SystemSet::on_exit(consts::GameState::Loading).with_system(startup.system()));
-	}
-}
-
 
 fn piecetype_to_sprite_index(piece_type: &PieceType, is_white: bool) -> u32 {
 	let mut base = 0;
@@ -69,7 +59,7 @@ fn add_piece(
 	commands
 		.spawn_bundle(SpriteSheetBundle {
 			transform: Transform {
-				translation: Vec3::new(pos.0, pos.1, 0.0),
+				translation: Vec3::new(pos.0, pos.1, 0.1),
 				//scale: Vec3::splat(0.05),
 				..Default::default()
 			},
@@ -82,7 +72,7 @@ fn add_piece(
 
 
 
-fn startup(
+fn on_enter(
 	mut commands: Commands,
 	mut materials: ResMut<Assets<ColorMaterial>>,
 	asset_server: Res<AssetServer>,
@@ -171,5 +161,27 @@ fn startup(
 				Piece::new(x, second_row, PieceType::PAWN, is_white),
 			);
 		}
+	}
+}
+
+
+fn on_exit(
+	mut commands: Commands,
+	mut query: Query<(&Piece, Entity)>,
+) {
+	for (_piece, entity) in query.iter_mut() {
+		commands.entity( entity ).despawn_recursive();
+	}
+}
+
+
+// Plugin
+pub struct PieceManagerPlugin;
+
+impl Plugin for PieceManagerPlugin {
+	fn build(&self, app: &mut AppBuilder) {
+		app
+			.add_system_set(SystemSet::on_enter(consts::GameState::Playing).with_system(on_enter.system()))
+			.add_system_set(SystemSet::on_exit(consts::GameState::Playing).with_system(on_exit.system()));
 	}
 }
