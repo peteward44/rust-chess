@@ -6,7 +6,10 @@ use bevy::prelude::*;
 pub struct NetworkPlugin;
 
 impl Plugin for NetworkPlugin {
-	fn build(&self, app: &mut AppBuilder) {
+	fn build(
+		&self,
+		app: &mut AppBuilder,
+	) {
 		app.add_startup_system(network_setup.system());
 	}
 }

@@ -20,7 +20,12 @@ pub struct Piece {
 }
 
 impl Piece {
-	pub fn new(x: i32, y: i32, name: PieceType, is_white: bool) -> Piece {
+	pub fn new(
+		x: i32,
+		y: i32,
+		name: PieceType,
+		is_white: bool,
+	) -> Piece {
 		Piece {
 			name: name,
 			is_white: is_white,
@@ -32,7 +37,10 @@ impl Piece {
 }
 
 
-fn piecetype_to_sprite_index(piece_type: &PieceType, is_white: bool) -> u32 {
+fn piecetype_to_sprite_index(
+	piece_type: &PieceType,
+	is_white: bool,
+) -> u32 {
 	let mut base = 0;
 	if is_white == true {
 		base = 6;
@@ -71,14 +79,13 @@ fn add_piece(
 }
 
 
-
 fn on_enter(
 	mut commands: Commands,
 	mut materials: ResMut<Assets<ColorMaterial>>,
 	asset_server: Res<AssetServer>,
 	mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-	let texture_handle: Handle<Texture> = asset_server.get_handle( "textures/primary/pieces.png" );
+	let texture_handle: Handle<Texture> = asset_server.get_handle("textures/primary/pieces.png");
 	let texture_atlas = TextureAtlas::from_grid(
 		texture_handle,
 		Vec2::new(consts::PIECE_WIDTH, consts::PIECE_HEIGHT),
@@ -170,7 +177,7 @@ fn on_exit(
 	mut query: Query<(&Piece, Entity)>,
 ) {
 	for (_piece, entity) in query.iter_mut() {
-		commands.entity( entity ).despawn_recursive();
+		commands.entity(entity).despawn_recursive();
 	}
 }
 
@@ -179,9 +186,15 @@ fn on_exit(
 pub struct PieceManagerPlugin;
 
 impl Plugin for PieceManagerPlugin {
-	fn build(&self, app: &mut AppBuilder) {
-		app
-			.add_system_set(SystemSet::on_enter(consts::GameState::Playing).with_system(on_enter.system()))
-			.add_system_set(SystemSet::on_exit(consts::GameState::Playing).with_system(on_exit.system()));
+	fn build(
+		&self,
+		app: &mut AppBuilder,
+	) {
+		app.add_system_set(
+			SystemSet::on_enter(consts::GameState::Playing).with_system(on_enter.system()),
+		)
+		.add_system_set(
+			SystemSet::on_exit(consts::GameState::Playing).with_system(on_exit.system()),
+		);
 	}
 }

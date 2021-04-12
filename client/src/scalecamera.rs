@@ -24,7 +24,10 @@ impl Default for ScaleCamera {
 pub struct ScaleCameraPlugin;
 
 impl Plugin for ScaleCameraPlugin {
-	fn build(&self, app: &mut AppBuilder) {
+	fn build(
+		&self,
+		app: &mut AppBuilder,
+	) {
 		app.add_system(on_window_create.system())
 			.add_system(on_window_resize.system())
 			.add_system(camera_movement_system.system());
@@ -66,14 +69,20 @@ fn on_window_resize(
 }
 
 #[allow(dead_code)]
-fn scale_basic(window_w: i32, window_h: i32) -> Vec3 {
+fn scale_basic(
+	window_w: i32,
+	window_h: i32,
+) -> Vec3 {
 	// plain simple scale direct to window size
 	let ratio_w = DRAW_WINDOW_W / window_w as f32;
 	let ratio_h = DRAW_WINDOW_H / window_h as f32;
 	Vec3::new(ratio_w, ratio_h, 1.0)
 }
 
-fn scale_maintain_aspect_ratio(window_w: i32, window_h: i32) -> Vec3 {
+fn scale_maintain_aspect_ratio(
+	window_w: i32,
+	window_h: i32,
+) -> Vec3 {
 	let mut ratio_w = DRAW_WINDOW_W / window_w as f32;
 	let desired_height = window_w as f32 / ASPECT_RATIO;
 	let ratio_h;

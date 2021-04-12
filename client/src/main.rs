@@ -2,14 +2,14 @@ use bevy::{prelude::*, render::pass::ClearColor};
 
 mod board;
 mod consts;
-mod input;
-mod network;
-mod piecemanager;
-mod scalecamera;
 mod hitarea;
+mod input;
 mod loading;
 mod menu;
+mod network;
+mod piecemanager;
 mod quit;
+mod scalecamera;
 
 use board::BoardPlugin;
 use input::InputPlugin;
@@ -54,10 +54,11 @@ fn setup(
 	mut state: ResMut<State<consts::GameState>>,
 	mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-	commands.spawn_bundle(OrthographicCameraBundle::new_2d())	
+	commands
+		.spawn_bundle(OrthographicCameraBundle::new_2d())
 		.insert(scalecamera::ScaleCamera::default())
 		.insert(hitarea::HitAreaCamera);
-		//	.spawn(UiCameraBundle::default())
+	//	.spawn(UiCameraBundle::default())
 	// background
 	commands.spawn_bundle(SpriteBundle {
 		material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
@@ -68,6 +69,6 @@ fn setup(
 		)),
 		..Default::default()
 	});
-	
-	state.set( consts::GameState::Loading ).unwrap();
+
+	state.set(consts::GameState::Loading).unwrap();
 }

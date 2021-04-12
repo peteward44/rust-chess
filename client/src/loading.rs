@@ -10,7 +10,7 @@ struct Background;
 
 #[derive(Default)]
 struct LoadHandles {
-    handles: Vec<HandleUntyped>,
+	handles: Vec<HandleUntyped>,
 }
 
 
@@ -21,55 +21,66 @@ fn on_enter(
 	asset_server: Res<AssetServer>,
 ) {
 	// black background on top of everything else until it's loaded
-	commands.spawn_bundle(SpriteBundle {
-		material: materials.add(Color::rgb(0.1, 0.1, 0.2).into()),
-		transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
-		sprite: Sprite::new(Vec2::new(
-			scalecamera::DRAW_WINDOW_W,
-			scalecamera::DRAW_WINDOW_H,
-		)),
-		..Default::default()
-	})
-	.insert( Background );
+	commands
+		.spawn_bundle(SpriteBundle {
+			material: materials.add(Color::rgb(0.1, 0.1, 0.2).into()),
+			transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
+			sprite: Sprite::new(Vec2::new(
+				scalecamera::DRAW_WINDOW_W,
+				scalecamera::DRAW_WINDOW_H,
+			)),
+			..Default::default()
+		})
+		.insert(Background);
 
 	// load textures
 	load_handles.handles = asset_server.load_folder("textures/primary").unwrap();
-	load_handles.handles.extend( asset_server.load_folder("fonts/primary").unwrap() );
+	load_handles
+		.handles
+		.extend(asset_server.load_folder("fonts/primary").unwrap());
 }
 
 
 fn on_update(
 	load_handles: ResMut<LoadHandles>,
-    mut state: ResMut<State<consts::GameState>>,
-    asset_server: Res<AssetServer>,
+	mut state: ResMut<State<consts::GameState>>,
+	asset_server: Res<AssetServer>,
 ) {
-	if let LoadState::Loaded = asset_server.get_group_load_state( load_handles.handles.iter().map( |handle| handle.id ) ) {
-		state.set( consts::GameState::Menu ).unwrap();
+	if let LoadState::Loaded =
+		asset_server.get_group_load_state(load_handles.handles.iter().map(|handle| handle.id))
+	{
+		state.set(consts::GameState::Menu).unwrap();
 	}
 }
 
 
 fn on_exit(
 	mut commands: Commands,
-	mut query: Query<(&Background, Entity)>
+	mut query: Query<(&Background, Entity)>,
 ) {
 	for (_background, entity) in query.iter_mut() {
-		commands.entity( entity ).despawn_recursive();
+		commands.entity(entity).despawn_recursive();
 	}
 }
-
 
 
 // Plugin
 pub struct LoadTexturesPlugin;
 
 impl Plugin for LoadTexturesPlugin {
-	fn build(&self, app: &mut AppBuilder) {
-		app
-			.init_resource::<LoadHandles>()
-			.add_system_set(SystemSet::on_enter(consts::GameState::Loading).with_system(on_enter.system()))
-			.add_system_set(SystemSet::on_update(consts::GameState::Loading).with_system(on_update.system()))
-			.add_system_set(SystemSet::on_exit(consts::GameState::Loading).with_system(on_exit.system()));
+	fn build(
+		&self,
+		app: &mut AppBuilder,
+	) {
+		app.init_resource::<LoadHandles>()
+			.add_system_set(
+				SystemSet::on_enter(consts::GameState::Loading).with_system(on_enter.system()),
+			)
+			.add_system_set(
+				SystemSet::on_update(consts::GameState::Loading).with_system(on_update.system()),
+			)
+			.add_system_set(
+				SystemSet::on_exit(consts::GameState::Loading).with_system(on_exit.system()),
+			);
 	}
 }
-

@@ -32,7 +32,10 @@ pub struct MouseClick {
 }
 
 impl Plugin for HitAreaPlugin {
-	fn build(&self, app: &mut AppBuilder) {
+	fn build(
+		&self,
+		app: &mut AppBuilder,
+	) {
 		app.insert_resource(MouseLoc(Vec2::new(0.0, 0.0)))
 			.insert_resource(WindowSize(Vec2::new(0.0, 0.0)))
 			.add_event::<MouseClick>()
@@ -66,7 +69,10 @@ pub struct HitArea {
 
 impl HitArea {
 	#[allow(dead_code)]
-	pub fn new(name: &str, size: &Vec2) -> Self {
+	pub fn new(
+		name: &str,
+		size: &Vec2,
+	) -> Self {
 		HitArea {
 			name: name.to_owned(),
 			size: size.clone(),
@@ -113,8 +119,7 @@ fn detect_mouse_event(
 		0.0,
 	);
 
-	for event in my_event_reader.iter()
-	{
+	for event in my_event_reader.iter() {
 		for (_camera, camera_transform) in camera_query.iter() {
 			let cam_mat = camera_transform.compute_matrix();
 			// sprites with SpritePicker type trait
@@ -193,9 +198,5 @@ fn mouse_movement_updating_system(
 }
 
 
-
 #[cfg(test)]
-mod test {
-
-}
-
+mod test {}

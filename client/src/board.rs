@@ -23,7 +23,10 @@ struct BoardState {
 pub struct PieceMoved;
 
 
-fn get_square_color( x: i32, y: i32 ) -> Color {
+fn get_square_color(
+	x: i32,
+	y: i32,
+) -> Color {
 	let white = Color::rgb(
 		consts::BOARD_COLOUR1.0,
 		consts::BOARD_COLOUR1.1,
@@ -48,9 +51,13 @@ fn on_enter(
 ) {
 	for y in 0..consts::BOARD_WIDTH {
 		for x in 0..consts::BOARD_HEIGHT {
-			let colour = get_square_color( x, y );
+			let colour = get_square_color(x, y);
 			let material = materials.add(colour.into());
-			let square = Square { x: x, y: y, material: material.clone() };
+			let square = Square {
+				x: x,
+				y: y,
+				material: material.clone(),
+			};
 			let name = format!("{} {}", x, y);
 			let pos = consts::get_square_position(x, y);
 			commands
@@ -61,8 +68,8 @@ fn on_enter(
 					..Default::default()
 				})
 				.insert(SpritePicker::new(&name));
-//				.insert(square.clone());
-			board_state.squares.insert( name, square );
+			//				.insert(square.clone());
+			board_state.squares.insert(name, square);
 		}
 	}
 }
@@ -79,9 +86,9 @@ fn square_clicked(
 			Some(selected_square) => {
 				// reset already-selected square to original colour
 				let mut color_mat = materials.get_mut(&selected_square.material).unwrap();
-				color_mat.color = get_square_color( selected_square.x, selected_square.y );
-			},
-			None => {},
+				color_mat.color = get_square_color(selected_square.x, selected_square.y);
+			}
+			None => {}
 		}
 		// set newly selected square to selected colour
 		let mut color_mat = materials.get_mut(&square.material).unwrap();
@@ -93,21 +100,21 @@ fn square_clicked(
 
 fn on_exit(
 	mut commands: Commands,
-	mut query: Query<(&Square, Entity)>
+	mut query: Query<(&Square, Entity)>,
 ) {
 	for (_square, entity) in query.iter_mut() {
-		commands.entity( entity ).despawn_recursive();
+		commands.entity(entity).despawn_recursive();
 	}
 }
 
 
 fn escape_key(
 	keys: Res<Input<KeyCode>>,
-    mut state: ResMut<State<consts::GameState>>,
+	mut state: ResMut<State<consts::GameState>>,
 ) {
-    if keys.just_pressed(KeyCode::Escape) {
-		state.set( consts::GameState::Menu ).unwrap();
-    }
+	if keys.just_pressed(KeyCode::Escape) {
+		state.set(consts::GameState::Menu).unwrap();
+	}
 }
 
 
@@ -115,17 +122,25 @@ fn escape_key(
 pub struct BoardPlugin;
 
 impl Plugin for BoardPlugin {
-	fn build(&self, app: &mut AppBuilder) {
+	fn build(
+		&self,
+		app: &mut AppBuilder,
+	) {
 		app.add_event::<PieceMoved>()
 			.insert_resource(BoardState {
 				squares: HashMap::new(),
 				selected: None,
 			})
-			.add_system_set(SystemSet::on_enter(consts::GameState::Playing).with_system(on_enter.system()))
-			.add_system_set(SystemSet::on_update(consts::GameState::Playing)
-				.with_system(square_clicked.system())
-				.with_system(escape_key.system())
+			.add_system_set(
+				SystemSet::on_enter(consts::GameState::Playing).with_system(on_enter.system()),
 			)
-			.add_system_set(SystemSet::on_exit(consts::GameState::Playing).with_system(on_exit.system()));
+			.add_system_set(
+				SystemSet::on_update(consts::GameState::Playing)
+					.with_system(square_clicked.system())
+					.with_system(escape_key.system()),
+			)
+			.add_system_set(
+				SystemSet::on_exit(consts::GameState::Playing).with_system(on_exit.system()),
+			);
 	}
 }

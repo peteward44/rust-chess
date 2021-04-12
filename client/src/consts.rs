@@ -12,7 +12,10 @@ pub const PIECE_HEIGHT: f32 = 180.0;
 pub const BOARD_COLOUR1: (f32, f32, f32) = (0.9, 0.9, 0.6);
 pub const BOARD_COLOUR2: (f32, f32, f32) = (1.0, 0.45, 0.0);
 
-pub fn get_square_position(x: i32, y: i32) -> (f32, f32) {
+pub fn get_square_position(
+	x: i32,
+	y: i32,
+) -> (f32, f32) {
 	let start_x = -SQUARE_WIDTH * ((BOARD_WIDTH as f32 / 2.0) - 0.5);
 	let start_y = -SQUARE_HEIGHT * ((BOARD_HEIGHT as f32 / 2.0) - 0.5);
 	(
@@ -26,7 +29,7 @@ pub enum GameState {
 	Init,
 	Loading,
 	Menu,
-    Playing,
-    GameOver,
+	Playing,
+	GameOver,
 	Quit,
 }
