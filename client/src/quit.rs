@@ -5,9 +5,9 @@ use bevy::{prelude::*};
 struct DelayTimer(Timer);
 
 fn on_enter(
-	mut commands: Commands,
-	mut materials: ResMut<Assets<ColorMaterial>>,
-	asset_server: Res<AssetServer>,
+	// mut commands: Commands,
+	// mut materials: ResMut<Assets<ColorMaterial>>,
+	// asset_server: Res<AssetServer>,
 ) {
 
 }

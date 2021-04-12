@@ -1,4 +1,4 @@
-use super::{consts, scalecamera};
+use super::{consts};
 use bevy::{prelude::*};
 
 // Displays user menu
@@ -26,7 +26,7 @@ impl FromWorld for ButtonMaterials {
 
 
 fn add_button(
-	mut commands: &mut ChildBuilder,
+	commands: &mut ChildBuilder,
 	asset_server: &Res<AssetServer>,
 	button_materials: &Res<ButtonMaterials>,
 	name: &str
@@ -86,7 +86,7 @@ fn on_enter(
             ..Default::default()
         })
 		.insert( NeedsDespawning )
-        .with_children(|mut grandparent| {
+        .with_children(|grandparent| {
 			// node holding button column
 			grandparent.spawn_bundle(NodeBundle {
 				style: Style {
@@ -130,21 +130,21 @@ fn button_system(
 	mut state: ResMut<State<consts::GameState>>,
 ) {
     for (interaction, mut material, children) in interaction_query.iter_mut() {
-        let mut text = text_query.get_mut(children[0]).unwrap();
+        let text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
             Interaction::Clicked => {
                // text.sections[0].value = "Press".to_string();
                 *material = button_materials.pressed.clone();
-				match ( text.sections[0].value.as_str() ) {
+				match text.sections[0].value.as_str() {
 					"Resume Game" => {
 						
 					},
 					"New Game" => {
-						state.set( consts::GameState::Playing );
+						state.set( consts::GameState::Playing ).unwrap();
 						return;
 					},
 					"Quit" => {
-						state.set( consts::GameState::Quit );
+						state.set( consts::GameState::Quit ).unwrap();
 						return;
 					},
 					_ => {
@@ -174,7 +174,6 @@ impl Plugin for MenuPlugin {
 			.init_resource::<ButtonMaterials>()
 			.add_system(button_system.system())
 			.add_system_set(SystemSet::on_enter(consts::GameState::Menu).with_system(on_enter.system()))
-		//	.add_system_set(SystemSet::on_update(consts::GameState::Menu).with_system(on_update.system()))
 			.add_system_set(SystemSet::on_exit(consts::GameState::Menu).with_system(on_exit.system()));
 	}
 }

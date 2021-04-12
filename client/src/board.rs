@@ -106,7 +106,7 @@ fn escape_key(
     mut state: ResMut<State<consts::GameState>>,
 ) {
     if keys.just_pressed(KeyCode::Escape) {
-		state.set( consts::GameState::Menu );
+		state.set( consts::GameState::Menu ).unwrap();
     }
 }
 
