@@ -1,8 +1,5 @@
 use bevy::window::{WindowCreated, WindowResized};
-use bevy::{
-	input::mouse::MouseButtonInput, input::ElementState, prelude::*,
-	window::CursorMoved,
-};
+use bevy::{input::mouse::MouseButtonInput, input::ElementState, prelude::*, window::CursorMoved};
 
 struct MouseLoc(Vec2);
 struct WindowSize(Vec2);
@@ -41,7 +38,7 @@ impl Plugin for HitAreaPlugin {
 /// ```
 pub struct SpritePicker;
 
-#[derive(Bundle)] 
+#[derive(Bundle)]
 pub struct SpritePickerBundle {
 	sprite_picker: SpritePicker,
 	interaction: Interaction,
@@ -63,12 +60,8 @@ pub struct HitArea {
 
 impl HitArea {
 	#[allow(dead_code)]
-	pub fn new(
-		size: &Vec2,
-	) -> Self {
-		HitArea {
-			size: size.clone(),
-		}
+	pub fn new(size: &Vec2) -> Self {
+		HitArea { size: size.clone() }
 	}
 }
 
@@ -82,13 +75,9 @@ pub struct HitAreaBundle {
 
 impl HitAreaBundle {
 	#[allow(dead_code)]
-	pub fn new(
-		size: &Vec2,
-	) -> Self {
+	pub fn new(size: &Vec2) -> Self {
 		HitAreaBundle {
-			hit_area: HitArea {
-				size: size.clone(),
-			},
+			hit_area: HitArea { size: size.clone() },
 			interaction: Interaction::None,
 		}
 	}
@@ -136,36 +125,20 @@ fn detect_mouse_event(
 		for (_camera, camera_transform) in camera_query.iter() {
 			let cam_mat = camera_transform.compute_matrix();
 			// sprites with SpritePicker type trait
-			for (_sprite_picker, sprite, mut interaction, transform) in query_set.q0_mut().iter_mut() {
+			for (_sprite_picker, sprite, mut interaction, transform) in
+				query_set.q0_mut().iter_mut()
+			{
 				let sprite_mat = transform.compute_matrix().inverse() * cam_mat;
-				process_hitarea(
-					&mut interaction,
-					&sprite.size,
-					&sprite_mat,
-					&point,
-					event,
-				);
+				process_hitarea(&mut interaction, &sprite.size, &sprite_mat, &point, event);
 			}
 			// HitAreas with GlobalTransform traits
 			for (hitarea, mut interaction, transform) in query_set.q1_mut().iter_mut() {
 				let sprite_mat = transform.compute_matrix().inverse() * cam_mat;
-				process_hitarea(
-					&mut interaction,
-					&hitarea.size,
-					&sprite_mat,
-					&point,
-					event,
-				);
+				process_hitarea(&mut interaction, &hitarea.size, &sprite_mat, &point, event);
 			}
 			// Then HitAreas without GlobalTransform trait
 			for (hitarea, mut interaction) in query_set.q2_mut().iter_mut() {
-				process_hitarea(
-					&mut interaction,
-					&hitarea.size,
-					&cam_mat,
-					&point,
-					&event,
-				);
+				process_hitarea(&mut interaction, &hitarea.size, &cam_mat, &point, &event);
 			}
 		}
 	}

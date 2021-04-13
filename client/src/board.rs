@@ -1,5 +1,5 @@
 use crate::consts;
-use crate::hitarea::{SpritePickerBundle};
+use crate::hitarea::SpritePickerBundle;
 use bevy::prelude::*;
 use std::collections::HashMap;
 //use std::rc::Rc;
@@ -77,10 +77,7 @@ fn on_enter(
 fn square_clicked(
 	mut board_state: ResMut<BoardState>,
 	mut materials: ResMut<Assets<ColorMaterial>>,
-	mut interaction_query: Query<
-		(&Interaction, &Square),
-		(Changed<Interaction>, With<Square>),
-	>,
+	mut interaction_query: Query<(&Interaction, &Square), (Changed<Interaction>, With<Square>)>,
 ) {
 	for (interaction, square) in interaction_query.iter_mut() {
 		// let square = square_query.get_mut(children[0]).unwrap();
@@ -102,10 +99,9 @@ fn square_clicked(
 				board_state.selected = Some(square.clone());
 			}
 			_ => {
-		//		println!("Something else {:?} {:?}", square.x, square.y);
+				//		println!("Something else {:?} {:?}", square.x, square.y);
 			}
 		}
-
 	}
 }
 
