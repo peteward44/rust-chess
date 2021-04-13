@@ -1,5 +1,5 @@
 use crate::consts;
-use crate::hitarea::{MouseClick, SpritePicker};
+use crate::hitarea::{SpritePickerBundle};
 use bevy::prelude::*;
 use std::collections::HashMap;
 //use std::rc::Rc;
@@ -67,33 +67,45 @@ fn on_enter(
 					sprite: Sprite::new(Vec2::new(consts::SQUARE_WIDTH, consts::SQUARE_HEIGHT)),
 					..Default::default()
 				})
-				.insert(SpritePicker::new(&name));
-			//				.insert(square.clone());
+				.insert_bundle(SpritePickerBundle::default())
+				.insert(square.clone());
 			board_state.squares.insert(name, square);
 		}
 	}
 }
 
 fn square_clicked(
-	mut my_event_reader: EventReader<MouseClick>,
 	mut board_state: ResMut<BoardState>,
 	mut materials: ResMut<Assets<ColorMaterial>>,
+	mut interaction_query: Query<
+		(&Interaction, &Square),
+		(Changed<Interaction>, With<Square>),
+	>,
 ) {
-	for my_event in my_event_reader.iter() {
-		let square = board_state.squares.get(&my_event.name).unwrap();
-		println!("{:?} {:?}", square.x, square.y);
-		match &board_state.selected {
-			Some(selected_square) => {
-				// reset already-selected square to original colour
-				let mut color_mat = materials.get_mut(&selected_square.material).unwrap();
-				color_mat.color = get_square_color(selected_square.x, selected_square.y);
+	for (interaction, square) in interaction_query.iter_mut() {
+		// let square = square_query.get_mut(children[0]).unwrap();
+		match *interaction {
+			Interaction::Clicked => {
+				println!("Clicked {:?} {:?}", square.x, square.y);
+
+				match &board_state.selected {
+					Some(selected_square) => {
+						// reset already-selected square to original colour
+						let mut color_mat = materials.get_mut(&selected_square.material).unwrap();
+						color_mat.color = get_square_color(selected_square.x, selected_square.y);
+					}
+					None => {}
+				}
+				// set newly selected square to selected colour
+				let mut color_mat = materials.get_mut(&square.material).unwrap();
+				color_mat.color = Color::rgb(1.0, 1.0, 1.0);
+				board_state.selected = Some(square.clone());
 			}
-			None => {}
+			_ => {
+		//		println!("Something else {:?} {:?}", square.x, square.y);
+			}
 		}
-		// set newly selected square to selected colour
-		let mut color_mat = materials.get_mut(&square.material).unwrap();
-		color_mat.color = Color::rgb(1.0, 1.0, 1.0);
-		board_state.selected = Some(square.clone());
+
 	}
 }
 

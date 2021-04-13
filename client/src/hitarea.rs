@@ -1,6 +1,6 @@
 use bevy::window::{WindowCreated, WindowResized};
 use bevy::{
-	input::mouse::MouseButton, input::mouse::MouseButtonInput, input::ElementState, prelude::*,
+	input::mouse::MouseButtonInput, input::ElementState, prelude::*,
 	window::CursorMoved,
 };
 
@@ -20,16 +20,6 @@ pub struct HitAreaCamera;
 /// ```
 pub struct HitAreaPlugin;
 
-/// Mouse click event
-/// "name" is the name passed to the SpritePicker trait, "button" and "state" are the same from bevy's
-/// event system, and "pos" is the relative position in the hit area that the click occurred, from the centre of the area.
-#[derive(Debug)]
-pub struct MouseClick {
-	pub name: String,
-	pub button: MouseButton,
-	pub state: ElementState,
-	pub pos: Vec2,
-}
 
 impl Plugin for HitAreaPlugin {
 	fn build(
@@ -38,7 +28,6 @@ impl Plugin for HitAreaPlugin {
 	) {
 		app.insert_resource(MouseLoc(Vec2::new(0.0, 0.0)))
 			.insert_resource(WindowSize(Vec2::new(0.0, 0.0)))
-			.add_event::<MouseClick>()
 			.add_system(detect_mouse_event.system())
 			.add_system(mouse_movement_updating_system.system())
 			.add_system(on_window_create.system())
@@ -48,57 +37,80 @@ impl Plugin for HitAreaPlugin {
 
 /// Add this trait to the sprites that you wish to receive click events
 /// ```
-/// .with(SpritePicker::new("my_sprite"));
+/// .with(SpritePicker);
 /// ```
-pub struct SpritePicker {
-	name: String,
+pub struct SpritePicker;
+
+#[derive(Bundle)] 
+pub struct SpritePickerBundle {
+	sprite_picker: SpritePicker,
+	interaction: Interaction,
 }
 
-impl SpritePicker {
-	pub fn new(name: &str) -> Self {
-		SpritePicker {
-			name: name.to_owned(),
+impl Default for SpritePickerBundle {
+	fn default() -> Self {
+		SpritePickerBundle {
+			sprite_picker: SpritePicker,
+			interaction: Interaction::None,
 		}
 	}
 }
 
+
 pub struct HitArea {
-	name: String,
 	size: Vec2,
 }
 
 impl HitArea {
 	#[allow(dead_code)]
 	pub fn new(
-		name: &str,
 		size: &Vec2,
 	) -> Self {
 		HitArea {
-			name: name.to_owned(),
 			size: size.clone(),
 		}
 	}
 }
 
+
+#[derive(Bundle)]
+pub struct HitAreaBundle {
+	hit_area: HitArea,
+	interaction: Interaction,
+}
+
+
+impl HitAreaBundle {
+	#[allow(dead_code)]
+	pub fn new(
+		size: &Vec2,
+	) -> Self {
+		HitAreaBundle {
+			hit_area: HitArea {
+				size: size.clone(),
+			},
+			interaction: Interaction::None,
+		}
+	}
+}
+
+
 fn process_hitarea(
-	name: &String,
+	interaction: &mut Interaction,
 	size: &Vec2,
 	hitarea_matrix: &Mat4,
 	point: &Vec3,
 	event: &MouseButtonInput,
-	my_events: &mut EventWriter<MouseClick>,
 ) {
 	let vec = hitarea_matrix.transform_point3(*point);
-
 	let half_width = size.x / 2.0;
 	let half_height = size.y / 2.0;
 	if vec.x >= -half_width && vec.x < half_width && vec.y >= -half_height && vec.y < half_height {
-		my_events.send(MouseClick {
-			name: name.to_string(),
-			button: event.button,
-			state: event.state.clone(),
-			pos: Vec2::new(vec.x, vec.y),
-		});
+		if event.state == ElementState::Pressed && *interaction != Interaction::Clicked {
+			*interaction = Interaction::Clicked;
+		} else if event.state == ElementState::Released && *interaction == Interaction::Clicked {
+			*interaction = Interaction::None;
+		}
 	}
 }
 
@@ -106,10 +118,11 @@ fn detect_mouse_event(
 	mouse_pos: ResMut<MouseLoc>,
 	window_size: Res<WindowSize>,
 	mut my_event_reader: EventReader<MouseButtonInput>,
-	mut my_events: EventWriter<MouseClick>,
-	spritepicker_query: Query<(&SpritePicker, &Sprite, &GlobalTransform)>,
-	hitarea_query: Query<(&HitArea, &GlobalTransform)>,
-	hitarea_notransform_query: Query<&HitArea, Without<GlobalTransform>>,
+	mut query_set: QuerySet<(
+		Query<(&SpritePicker, &Sprite, &mut Interaction, &GlobalTransform)>,
+		Query<(&HitArea, &mut Interaction, &GlobalTransform)>,
+		Query<(&HitArea, &mut Interaction), Without<GlobalTransform>>,
+	)>,
 	camera_query: Query<(&HitAreaCamera, &GlobalTransform)>,
 ) {
 	// move mouse click from 0,0 in bottom left and into the centre of screen
@@ -123,38 +136,35 @@ fn detect_mouse_event(
 		for (_camera, camera_transform) in camera_query.iter() {
 			let cam_mat = camera_transform.compute_matrix();
 			// sprites with SpritePicker type trait
-			for (sprite_picker, sprite, transform) in spritepicker_query.iter() {
+			for (_sprite_picker, sprite, mut interaction, transform) in query_set.q0_mut().iter_mut() {
 				let sprite_mat = transform.compute_matrix().inverse() * cam_mat;
 				process_hitarea(
-					&sprite_picker.name,
+					&mut interaction,
 					&sprite.size,
 					&sprite_mat,
 					&point,
 					event,
-					&mut my_events,
 				);
 			}
 			// HitAreas with GlobalTransform traits
-			for (hitarea, transform) in hitarea_query.iter() {
+			for (hitarea, mut interaction, transform) in query_set.q1_mut().iter_mut() {
 				let sprite_mat = transform.compute_matrix().inverse() * cam_mat;
 				process_hitarea(
-					&hitarea.name,
+					&mut interaction,
 					&hitarea.size,
 					&sprite_mat,
 					&point,
 					event,
-					&mut my_events,
 				);
 			}
 			// Then HitAreas without GlobalTransform trait
-			for hitarea in hitarea_notransform_query.iter() {
+			for (hitarea, mut interaction) in query_set.q2_mut().iter_mut() {
 				process_hitarea(
-					&hitarea.name,
+					&mut interaction,
 					&hitarea.size,
 					&cam_mat,
 					&point,
 					&event,
-					&mut my_events,
 				);
 			}
 		}
