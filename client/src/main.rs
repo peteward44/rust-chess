@@ -1,20 +1,20 @@
 use bevy::{prelude::*, render::pass::ClearColor};
 
 mod board;
+mod boardstate;
+mod boardstatesync;
 mod consts;
 mod hitarea;
 mod input;
 mod loading;
 mod menu;
 mod network;
-mod piecemanager;
 mod quit;
 mod scalecamera;
 
 use board::BoardPlugin;
 use input::InputPlugin;
 use network::NetworkPlugin;
-use piecemanager::PieceManagerPlugin;
 
 
 fn main() {
@@ -40,7 +40,7 @@ fn main() {
 		.add_plugin(BoardPlugin)
 		.add_plugin(InputPlugin)
 		.add_plugin(NetworkPlugin)
-		.add_plugin(PieceManagerPlugin)
+		.add_plugin(boardstatesync::BoardStateSyncPlugin)
 		.add_plugin(scalecamera::ScaleCameraPlugin)
 		.add_plugin(hitarea::HitAreaPlugin)
 		.add_plugin(quit::QuitPlugin)

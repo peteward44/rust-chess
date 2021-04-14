@@ -1,21 +1,18 @@
 use crate::consts;
 use crate::hitarea::SpritePickerBundle;
 use bevy::prelude::*;
-use std::collections::HashMap;
-//use std::rc::Rc;
 
 // classes
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 struct Square {
-	x: i32,
-	y: i32,
+	x: usize,
+	y: usize,
 	material: Handle<ColorMaterial>,
 }
 
 // resources
-struct BoardState {
-	squares: HashMap<String, Square>,
+struct BoardRenderState {
 	selected: Option<Square>,
 }
 
@@ -24,8 +21,8 @@ pub struct PieceMoved;
 
 
 fn get_square_color(
-	x: i32,
-	y: i32,
+	x: usize,
+	y: usize,
 ) -> Color {
 	let white = Color::rgb(
 		consts::BOARD_COLOUR1.0,
@@ -37,7 +34,7 @@ fn get_square_color(
 		consts::BOARD_COLOUR2.1,
 		consts::BOARD_COLOUR2.2,
 	);
-	if ((y % 2) - (x % 2)) == 0 {
+	if ((y as i32 % 2) - (x as i32 % 2)) == 0 {
 		return black;
 	}
 	return white;
@@ -47,7 +44,6 @@ fn on_enter(
 	mut commands: Commands,
 	mut materials: ResMut<Assets<ColorMaterial>>,
 	_asset_server: Res<AssetServer>,
-	mut board_state: ResMut<BoardState>,
 ) {
 	for y in 0..consts::BOARD_WIDTH {
 		for x in 0..consts::BOARD_HEIGHT {
@@ -58,7 +54,6 @@ fn on_enter(
 				y: y,
 				material: material.clone(),
 			};
-			let name = format!("{} {}", x, y);
 			let pos = consts::get_square_position(x, y);
 			commands
 				.spawn_bundle(SpriteBundle {
@@ -69,13 +64,12 @@ fn on_enter(
 				})
 				.insert_bundle(SpritePickerBundle::default())
 				.insert(square.clone());
-			board_state.squares.insert(name, square);
 		}
 	}
 }
 
 fn square_clicked(
-	mut board_state: ResMut<BoardState>,
+	mut board_render_state: ResMut<BoardRenderState>,
 	mut materials: ResMut<Assets<ColorMaterial>>,
 	mut interaction_query: Query<(&Interaction, &Square), (Changed<Interaction>, With<Square>)>,
 ) {
@@ -84,19 +78,24 @@ fn square_clicked(
 		match *interaction {
 			Interaction::Clicked => {
 				println!("Clicked {:?} {:?}", square.x, square.y);
-
-				match &board_state.selected {
+				let mut is_same = false;
+				match &board_render_state.selected {
 					Some(selected_square) => {
 						// reset already-selected square to original colour
 						let mut color_mat = materials.get_mut(&selected_square.material).unwrap();
 						color_mat.color = get_square_color(selected_square.x, selected_square.y);
+						is_same = selected_square.x == square.x && selected_square.y == square.y;
 					}
 					None => {}
 				}
 				// set newly selected square to selected colour
-				let mut color_mat = materials.get_mut(&square.material).unwrap();
-				color_mat.color = Color::rgb(1.0, 1.0, 1.0);
-				board_state.selected = Some(square.clone());
+				if !is_same {
+					let mut color_mat = materials.get_mut(&square.material).unwrap();
+					color_mat.color = Color::rgb(1.0, 1.0, 1.0);
+					board_render_state.selected = Some(square.clone());
+				} else {
+					board_render_state.selected = None;
+				}
 			}
 			_ => {
 				//		println!("Something else {:?} {:?}", square.x, square.y);
@@ -135,10 +134,7 @@ impl Plugin for BoardPlugin {
 		app: &mut AppBuilder,
 	) {
 		app.add_event::<PieceMoved>()
-			.insert_resource(BoardState {
-				squares: HashMap::new(),
-				selected: None,
-			})
+			.insert_resource(BoardRenderState { selected: None })
 			.add_system_set(
 				SystemSet::on_enter(consts::GameState::Playing).with_system(on_enter.system()),
 			)
