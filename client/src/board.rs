@@ -1,5 +1,7 @@
+use crate::boardstate::BoardState;
 use crate::consts;
 use crate::hitarea::SpritePickerBundle;
+use crate::rules::Rules;
 use bevy::prelude::*;
 
 // classes
@@ -70,6 +72,7 @@ fn on_enter(
 
 fn square_clicked(
 	mut board_render_state: ResMut<BoardRenderState>,
+	board_state: Res<BoardState>,
 	mut materials: ResMut<Assets<ColorMaterial>>,
 	mut interaction_query: Query<(&Interaction, &Square), (Changed<Interaction>, With<Square>)>,
 ) {
@@ -78,23 +81,28 @@ fn square_clicked(
 		match *interaction {
 			Interaction::Clicked => {
 				println!("Clicked {:?} {:?}", square.x, square.y);
-				let mut is_same = false;
-				match &board_render_state.selected {
-					Some(selected_square) => {
-						// reset already-selected square to original colour
-						let mut color_mat = materials.get_mut(&selected_square.material).unwrap();
-						color_mat.color = get_square_color(selected_square.x, selected_square.y);
-						is_same = selected_square.x == square.x && selected_square.y == square.y;
+				if Rules::can_select_square(&board_state, square.x, square.y) {
+					let mut is_same = false;
+					match &board_render_state.selected {
+						Some(selected_square) => {
+							// reset already-selected square to original colour
+							let mut color_mat =
+								materials.get_mut(&selected_square.material).unwrap();
+							color_mat.color =
+								get_square_color(selected_square.x, selected_square.y);
+							is_same =
+								selected_square.x == square.x && selected_square.y == square.y;
+						}
+						None => {}
 					}
-					None => {}
-				}
-				// set newly selected square to selected colour
-				if !is_same {
-					let mut color_mat = materials.get_mut(&square.material).unwrap();
-					color_mat.color = Color::rgb(1.0, 1.0, 1.0);
-					board_render_state.selected = Some(square.clone());
-				} else {
-					board_render_state.selected = None;
+					// set newly selected square to selected colour
+					if !is_same {
+						let mut color_mat = materials.get_mut(&square.material).unwrap();
+						color_mat.color = Color::rgb(1.0, 1.0, 1.0);
+						board_render_state.selected = Some(square.clone());
+					} else {
+						board_render_state.selected = None;
+					}
 				}
 			}
 			_ => {

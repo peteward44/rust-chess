@@ -10,6 +10,7 @@ mod loading;
 mod menu;
 mod network;
 mod quit;
+mod rules;
 mod scalecamera;
 
 use board::BoardPlugin;

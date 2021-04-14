@@ -14,13 +14,26 @@ pub struct BoardState {
 
 
 impl BoardState {
-	fn new_game_setup() -> Self {
+	pub fn get_square(
+		&self,
+		x: usize,
+		y: usize,
+	) -> Option<BoardPiece> {
+		self.state[x][y]
+	}
+
+	pub fn new_game_setup(white_playing: bool) -> Self {
 		let mut state = [[None; consts::BOARD_WIDTH]; consts::BOARD_HEIGHT];
 		for side in 0..2 {
-			let is_white = side == 1;
+			let is_white;
+			if white_playing {
+				is_white = side == 0;
+			} else {
+				is_white = side == 1;
+			}
 			let mut first_row = 0;
 			let mut second_row = 1;
-			if is_white {
+			if side == 1 {
 				first_row = 7;
 				second_row = 6;
 			}
@@ -71,6 +84,6 @@ impl BoardState {
 
 impl Default for BoardState {
 	fn default() -> Self {
-		BoardState::new_game_setup()
+		BoardState::new_game_setup(true)
 	}
 }
