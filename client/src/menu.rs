@@ -69,9 +69,7 @@ fn on_enter(
 	button_materials: Res<ButtonMaterials>,
 ) {
 	// camera
-	commands
-		.spawn_bundle(UiCameraBundle::default())
-		.insert(NeedsDespawning);
+	commands.spawn_bundle(UiCameraBundle::default()).insert(NeedsDespawning);
 	// root node
 	commands
 		.spawn_bundle(NodeBundle {
@@ -121,10 +119,7 @@ fn on_exit(
 
 fn button_system(
 	button_materials: Res<ButtonMaterials>,
-	mut interaction_query: Query<
-		(&Interaction, &mut Handle<ColorMaterial>, &Children),
-		(Changed<Interaction>, With<Button>),
-	>,
+	mut interaction_query: Query<(&Interaction, &mut Handle<ColorMaterial>, &Children), (Changed<Interaction>, With<Button>)>,
 	mut text_query: Query<&mut Text>,
 	mut state: ResMut<State<consts::GameState>>,
 ) {
@@ -170,11 +165,7 @@ impl Plugin for MenuPlugin {
 	) {
 		app.init_resource::<ButtonMaterials>()
 			.add_system(button_system.system())
-			.add_system_set(
-				SystemSet::on_enter(consts::GameState::Menu).with_system(on_enter.system()),
-			)
-			.add_system_set(
-				SystemSet::on_exit(consts::GameState::Menu).with_system(on_exit.system()),
-			);
+			.add_system_set(SystemSet::on_enter(consts::GameState::Menu).with_system(on_enter.system()))
+			.add_system_set(SystemSet::on_exit(consts::GameState::Menu).with_system(on_exit.system()));
 	}
 }

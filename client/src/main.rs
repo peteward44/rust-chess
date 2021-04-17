@@ -64,10 +64,7 @@ fn setup(
 	commands.spawn_bundle(SpriteBundle {
 		material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
 		transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
-		sprite: Sprite::new(Vec2::new(
-			scalecamera::DRAW_WINDOW_W,
-			scalecamera::DRAW_WINDOW_H,
-		)),
+		sprite: Sprite::new(Vec2::new(scalecamera::DRAW_WINDOW_W, scalecamera::DRAW_WINDOW_H)),
 		..Default::default()
 	});
 

@@ -19,6 +19,9 @@ impl BoardState {
 		x: usize,
 		y: usize,
 	) -> Option<BoardPiece> {
+		if x < 0 || y < 0 || x >= consts::BOARD_WIDTH || y >= consts::BOARD_HEIGHT {
+			return None;
+		}
 		self.state[x][y]
 	}
 

@@ -31,11 +31,7 @@ impl Plugin for QuitPlugin {
 		app: &mut AppBuilder,
 	) {
 		app.insert_resource(DelayTimer(Timer::from_seconds(2.0, true)))
-			.add_system_set(
-				SystemSet::on_enter(consts::GameState::Quit).with_system(on_enter.system()),
-			)
-			.add_system_set(
-				SystemSet::on_update(consts::GameState::Quit).with_system(on_update.system()),
-			);
+			.add_system_set(SystemSet::on_enter(consts::GameState::Quit).with_system(on_enter.system()))
+			.add_system_set(SystemSet::on_update(consts::GameState::Quit).with_system(on_update.system()));
 	}
 }

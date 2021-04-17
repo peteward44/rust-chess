@@ -18,10 +18,7 @@ pub fn get_square_position(
 ) -> (f32, f32) {
 	let start_x = -SQUARE_WIDTH * ((BOARD_WIDTH as f32 / 2.0) - 0.5);
 	let start_y = -SQUARE_HEIGHT * ((BOARD_HEIGHT as f32 / 2.0) - 0.5);
-	(
-		start_x + (x as f32) * SQUARE_WIDTH,
-		start_y + (y as f32) * SQUARE_HEIGHT,
-	)
+	(start_x + (x as f32) * SQUARE_WIDTH, start_y + (y as f32) * SQUARE_HEIGHT)
 }
 
 

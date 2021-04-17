@@ -25,19 +25,14 @@ fn on_enter(
 		.spawn_bundle(SpriteBundle {
 			material: materials.add(Color::rgb(0.1, 0.1, 0.2).into()),
 			transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
-			sprite: Sprite::new(Vec2::new(
-				scalecamera::DRAW_WINDOW_W,
-				scalecamera::DRAW_WINDOW_H,
-			)),
+			sprite: Sprite::new(Vec2::new(scalecamera::DRAW_WINDOW_W, scalecamera::DRAW_WINDOW_H)),
 			..Default::default()
 		})
 		.insert(Background);
 
 	// load textures
 	load_handles.handles = asset_server.load_folder("textures/primary").unwrap();
-	load_handles
-		.handles
-		.extend(asset_server.load_folder("fonts/primary").unwrap());
+	load_handles.handles.extend(asset_server.load_folder("fonts/primary").unwrap());
 }
 
 
@@ -46,9 +41,7 @@ fn on_update(
 	mut state: ResMut<State<consts::GameState>>,
 	asset_server: Res<AssetServer>,
 ) {
-	if let LoadState::Loaded =
-		asset_server.get_group_load_state(load_handles.handles.iter().map(|handle| handle.id))
-	{
+	if let LoadState::Loaded = asset_server.get_group_load_state(load_handles.handles.iter().map(|handle| handle.id)) {
 		state.set(consts::GameState::Menu).unwrap();
 	}
 }
@@ -73,14 +66,8 @@ impl Plugin for LoadTexturesPlugin {
 		app: &mut AppBuilder,
 	) {
 		app.init_resource::<LoadHandles>()
-			.add_system_set(
-				SystemSet::on_enter(consts::GameState::Loading).with_system(on_enter.system()),
-			)
-			.add_system_set(
-				SystemSet::on_update(consts::GameState::Loading).with_system(on_update.system()),
-			)
-			.add_system_set(
-				SystemSet::on_exit(consts::GameState::Loading).with_system(on_exit.system()),
-			);
+			.add_system_set(SystemSet::on_enter(consts::GameState::Loading).with_system(on_enter.system()))
+			.add_system_set(SystemSet::on_update(consts::GameState::Loading).with_system(on_update.system()))
+			.add_system_set(SystemSet::on_exit(consts::GameState::Loading).with_system(on_exit.system()));
 	}
 }

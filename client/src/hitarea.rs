@@ -115,19 +115,13 @@ fn detect_mouse_event(
 	camera_query: Query<(&HitAreaCamera, &GlobalTransform)>,
 ) {
 	// move mouse click from 0,0 in bottom left and into the centre of screen
-	let point = Vec3::new(
-		mouse_pos.0.x - (window_size.0.x / 2.0),
-		mouse_pos.0.y - (window_size.0.y / 2.0),
-		0.0,
-	);
+	let point = Vec3::new(mouse_pos.0.x - (window_size.0.x / 2.0), mouse_pos.0.y - (window_size.0.y / 2.0), 0.0);
 
 	for event in my_event_reader.iter() {
 		for (_camera, camera_transform) in camera_query.iter() {
 			let cam_mat = camera_transform.compute_matrix();
 			// sprites with SpritePicker type trait
-			for (_sprite_picker, sprite, mut interaction, transform) in
-				query_set.q0_mut().iter_mut()
-			{
+			for (_sprite_picker, sprite, mut interaction, transform) in query_set.q0_mut().iter_mut() {
 				let sprite_mat = transform.compute_matrix().inverse() * cam_mat;
 				process_hitarea(&mut interaction, &sprite.size, &sprite_mat, &point, event);
 			}

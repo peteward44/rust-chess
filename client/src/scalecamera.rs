@@ -14,10 +14,7 @@ pub struct ScaleCamera {
 
 impl Default for ScaleCamera {
 	fn default() -> Self {
-		Self {
-			window_w: 0,
-			window_h: 0,
-		}
+		Self { window_w: 0, window_h: 0 }
 	}
 }
 

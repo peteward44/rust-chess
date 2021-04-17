@@ -10,6 +10,7 @@ edition = "2018"
 bevy = { version = "0.5.0", features = ["dynamic"] }
 rand = "*"
 websocket = "0.26.2"
+array-init = "*"
 
 [profile.dev]
 opt-level = 1

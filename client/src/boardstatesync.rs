@@ -54,12 +54,7 @@ fn on_enter(
 	mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
 	let texture_handle: Handle<Texture> = asset_server.get_handle("textures/primary/pieces.png");
-	let texture_atlas = TextureAtlas::from_grid(
-		texture_handle,
-		Vec2::new(consts::PIECE_WIDTH, consts::PIECE_HEIGHT),
-		6,
-		2,
-	);
+	let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(consts::PIECE_WIDTH, consts::PIECE_HEIGHT), 6, 2);
 	let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
 	for y in 0..consts::BOARD_HEIGHT {
@@ -95,11 +90,7 @@ impl Plugin for BoardStateSyncPlugin {
 		app: &mut AppBuilder,
 	) {
 		app.insert_resource(BoardState::default())
-			.add_system_set(
-				SystemSet::on_enter(consts::GameState::Playing).with_system(on_enter.system()),
-			)
-			.add_system_set(
-				SystemSet::on_exit(consts::GameState::Playing).with_system(on_exit.system()),
-			);
+			.add_system_set(SystemSet::on_enter(consts::GameState::Playing).with_system(on_enter.system()))
+			.add_system_set(SystemSet::on_exit(consts::GameState::Playing).with_system(on_exit.system()));
 	}
 }
