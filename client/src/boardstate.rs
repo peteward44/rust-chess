@@ -9,24 +9,24 @@ pub struct BoardPiece {
 
 
 pub struct BoardState {
-	pub state: [[Option<BoardPiece>; consts::BOARD_WIDTH]; consts::BOARD_HEIGHT],
+	pub state: [[Option<BoardPiece>; consts::BOARD_WIDTH as usize]; consts::BOARD_HEIGHT as usize],
 }
 
 
 impl BoardState {
 	pub fn get_square(
 		&self,
-		x: usize,
-		y: usize,
+		x: i32,
+		y: i32,
 	) -> Option<BoardPiece> {
 		if x < 0 || y < 0 || x >= consts::BOARD_WIDTH || y >= consts::BOARD_HEIGHT {
 			return None;
 		}
-		self.state[x][y]
+		self.state[x as usize][y as usize]
 	}
 
 	pub fn new_game_setup(white_playing: bool) -> Self {
-		let mut state = [[None; consts::BOARD_WIDTH]; consts::BOARD_HEIGHT];
+		let mut state = [[None; consts::BOARD_WIDTH as usize]; consts::BOARD_HEIGHT as usize];
 		for side in 0..2 {
 			let is_white;
 			if white_playing {
@@ -74,7 +74,7 @@ impl BoardState {
 			});
 
 			for x in 0..consts::BOARD_WIDTH {
-				state[x][second_row] = Some(BoardPiece {
+				state[x as usize][second_row as usize] = Some(BoardPiece {
 					piece: consts::PieceType::PAWN,
 					is_white: is_white,
 				});

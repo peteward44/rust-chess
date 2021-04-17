@@ -3,7 +3,6 @@ use crate::consts;
 use crate::hitarea::SpritePickerBundle;
 use crate::rules::Rules;
 use bevy::prelude::*;
-use std::rc::Rc;
 
 // classes
 #[allow(dead_code)]
@@ -14,14 +13,14 @@ struct Square {
 
 #[derive(Debug, Clone)]
 struct SquarePosition {
-	x: usize,
-	y: usize,
+	x: i32,
+	y: i32,
 }
 
 // resources
 struct BoardRenderState {
 	selected: Option<SquarePosition>,
-	squares: [[Square; consts::BOARD_WIDTH]; consts::BOARD_HEIGHT],
+	squares: [[Square; consts::BOARD_WIDTH as usize]; consts::BOARD_HEIGHT as usize],
 }
 
 // events
@@ -29,8 +28,8 @@ pub struct PieceMoved;
 
 
 fn get_square_color(
-	x: usize,
-	y: usize,
+	x: i32,
+	y: i32,
 ) -> Color {
 	let white = Color::rgb(consts::BOARD_COLOUR1.0, consts::BOARD_COLOUR1.1, consts::BOARD_COLOUR1.2);
 	let black = Color::rgb(consts::BOARD_COLOUR2.0, consts::BOARD_COLOUR2.1, consts::BOARD_COLOUR2.2);
@@ -47,7 +46,7 @@ fn on_enter(
 ) {
 	for y in 0..consts::BOARD_WIDTH {
 		for x in 0..consts::BOARD_HEIGHT {
-			let square_render = &board_render_state.squares[x][y];
+			let square_render = &board_render_state.squares[x as usize][y as usize];
 			let pos = consts::get_square_position(x, y);
 			commands
 				.spawn_bundle(SpriteBundle {
@@ -78,7 +77,7 @@ fn square_clicked(
 					match &board_render_state.selected {
 						Some(selected_square) => {
 							// reset already-selected square to original colour
-							let square_render = &board_render_state.squares[selected_square.x][selected_square.y];
+							let square_render = &board_render_state.squares[selected_square.x as usize][selected_square.y as usize];
 							let mut color_mat = materials.get_mut(&square_render.material).unwrap();
 							color_mat.color = get_square_color(selected_square.x, selected_square.y);
 							is_same = selected_square.x == square.x && selected_square.y == square.y;
@@ -87,7 +86,7 @@ fn square_clicked(
 					}
 					// set newly selected square to selected colour
 					if !is_same {
-						let square_render = &board_render_state.squares[square.x][square.y];
+						let square_render = &board_render_state.squares[square.x as usize][square.y as usize];
 						let mut color_mat = materials.get_mut(&square_render.material).unwrap();
 						color_mat.color = Color::rgb(1.0, 1.0, 1.0);
 						board_render_state.selected = Some((*square).clone());
@@ -100,7 +99,7 @@ fn square_clicked(
 								println!("Move: {:?}", board_piece.piece);
 								for pmove in possible_moves.iter() {
 									// change colour of potential move squares
-									let pmove_square_render = &board_render_state.squares[pmove.x][pmove.y];
+									let pmove_square_render = &board_render_state.squares[pmove.x as usize][pmove.y as usize];
 									let mut color_mat = materials.get_mut(&pmove_square_render.material).unwrap();
 									color_mat.color = Color::rgb(0.5, 0.5, 0.5);
 									println!("Possible move: {:?} {:?}", pmove.x, pmove.y);
@@ -145,9 +144,9 @@ fn prep_board(
 	mut commands: Commands,
 	mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-	let squares: [[Square; consts::BOARD_WIDTH]; consts::BOARD_HEIGHT] = array_init::array_init(|x: usize| {
+	let squares: [[Square; consts::BOARD_WIDTH as usize]; consts::BOARD_HEIGHT as usize] = array_init::array_init(|x: usize| {
 		array_init::array_init(|y: usize| {
-			let colour = get_square_color(x, y);
+			let colour = get_square_color(x as i32, y as i32);
 			let material = materials.add(colour.into());
 			Square { material: material }
 		})

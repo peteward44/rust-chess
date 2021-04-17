@@ -24,8 +24,8 @@ fn piecetype_to_sprite_index(
 
 
 fn add_piece(
-	x: usize,
-	y: usize,
+	x: i32,
+	y: i32,
 	commands: &mut Commands,
 	texture_atlas_handle: Handle<TextureAtlas>,
 	piece: &BoardPiece,
@@ -59,7 +59,7 @@ fn on_enter(
 
 	for y in 0..consts::BOARD_HEIGHT {
 		for x in 0..consts::BOARD_WIDTH {
-			let square = board_state.state[x][y];
+			let square = board_state.get_square(x, y);
 			match square {
 				Some(piece) => {
 					add_piece(x, y, &mut commands, texture_atlas_handle.clone(), &piece);
