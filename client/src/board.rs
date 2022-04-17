@@ -3,6 +3,8 @@ use crate::consts;
 use crate::hitarea::SpritePickerBundle;
 use crate::rules::Rules;
 use bevy::prelude::*;
+use std::collections::HashMap;
+use std::ops::{Add, Mul};
 
 // classes
 #[allow(dead_code)]
@@ -11,11 +13,37 @@ struct Square {
 	color: Color,
 }
 
-#[derive(Component, Debug, Clone)]
+#[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug)]
 struct SquarePosition {
 	x: i32,
 	y: i32,
 }
+
+impl Add for SquarePosition {
+    type Output = SquarePosition;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self{ x: self.x + rhs.x, y: self.y + rhs.y }
+    }
+}
+
+impl Mul<i32> for SquarePosition {
+    type Output = SquarePosition;
+
+    fn mul(self, rhs: i32) -> Self::Output {
+        Self{ x: self.x * rhs, y: self.y * rhs }
+    }
+}
+
+
+// modifiers
+#[derive(Component, Debug, Clone)]
+enum SquareState {
+	None,
+	Selected,
+	PossibleMove,
+}
+
 
 // resources
 struct BoardRenderState {
@@ -42,13 +70,14 @@ fn get_square_color(
 fn on_enter(
 	mut commands: Commands,
 	board_render_state: ResMut<BoardRenderState>,
+	mut square_entities: ResMut<HashMap<SquarePosition, Entity>>,
 	_asset_server: Res<AssetServer>,
 ) {
 	for y in 0..consts::BOARD_WIDTH {
 		for x in 0..consts::BOARD_HEIGHT {
 			let square_render = &board_render_state.squares[x as usize][y as usize];
 			let pos = consts::get_square_position(x, y);
-			commands
+			let entity = commands
 				.spawn_bundle(SpriteBundle {
 					transform: Transform::from_translation(Vec3::new(pos.0, pos.1, 0.0)),
 					sprite: Sprite {
@@ -59,18 +88,42 @@ fn on_enter(
 					..Default::default()
 				})
 				.insert_bundle(SpritePickerBundle::default())
-				.insert(SquarePosition { x: x, y: y });
+				.insert(SquarePosition { x: x, y: y })
+				.insert(SquareState::None)
+				.id();
+			square_entities.insert(SquarePosition { x: x, y: y }, entity);
+		}
+	}
+}
+
+fn square_selected_changed(
+	mut board_render_state: ResMut<BoardRenderState>,
+	board_state: Res<BoardState>,
+	mut selected_query: Query<(&SquareState, &SquarePosition, &mut Sprite), (Changed<SquareState>, With<SquarePosition>, With<Sprite>)>,
+) {
+	for (square_state, square, mut sprite) in selected_query.iter_mut() {
+		match *square_state {
+			SquareState::None => {
+				sprite.color = get_square_color(square.x, square.y);
+			},
+			SquareState::Selected => {
+				sprite.color = Color::rgb(1.0, 1.0, 1.0).into();
+			},
+			SquareState::PossibleMove => {
+				sprite.color = Color::rgb(0.5, 0.5, 0.5).into();
+			},
 		}
 	}
 }
 
 fn square_clicked(
+	mut commands: Commands,
 	mut board_render_state: ResMut<BoardRenderState>,
 	board_state: Res<BoardState>,
-	mut materials: ResMut<Assets<ColorMaterial>>,
-	mut interaction_query: Query<(&Interaction, &SquarePosition, &mut Sprite), (Changed<Interaction>, With<SquarePosition>, With<Sprite>)>,
+	mut square_entities: ResMut<HashMap<SquarePosition, Entity>>,
+	mut interaction_query: Query<(Entity, &Interaction, &SquarePosition), (Changed<Interaction>, With<SquarePosition>)>,
 ) {
-	for (interaction, square, mut sprite) in interaction_query.iter_mut() {
+	for (entity, interaction, square) in interaction_query.iter_mut() {
 		// let square = square_query.get_mut(children[0]).unwrap();
 		match *interaction {
 			Interaction::Clicked => {
@@ -80,20 +133,17 @@ fn square_clicked(
 					let selected = board_render_state.selected.clone();
 					match selected {
 						Some(selected_square) => {
-							// reset already-selected square to original colour
-							board_render_state.squares[selected_square.x as usize][selected_square.y as usize].color = get_square_color(selected_square.x, selected_square.y);
-						//	let mut color_mat = materials.get_mut(&square_render.material).unwrap();
-						//	color_mat.color = get_square_color(selected_square.x, selected_square.y);
 							is_same = selected_square.x == square.x && selected_square.y == square.y;
 						}
 						None => {}
 					}
+					// reset all square states
+					for entity in square_entities.values() {
+						commands.entity(*entity).insert(SquareState::None);
+					}
 					// set newly selected square to selected colour
 					if !is_same {
-						board_render_state.squares[square.x as usize][square.y as usize].color = Color::rgb(1.0, 1.0, 1.0);
-						sprite.color = Color::rgb(1.0, 1.0, 1.0);
-					//	let mut color_mat = materials.get_mut(&square_render.material).unwrap();
-					//	color_mat.color = Color::rgb(1.0, 1.0, 1.0);
+						commands.entity(entity).insert(SquareState::Selected);
 						board_render_state.selected = Some((*square).clone());
 
 						// highlight squares available to move to
@@ -104,9 +154,8 @@ fn square_clicked(
 								println!("Move: {:?}", board_piece.piece);
 								for pmove in possible_moves.iter() {
 									// change colour of potential move squares
-									board_render_state.squares[pmove.x as usize][pmove.y as usize].color = Color::rgb(0.5, 0.5, 0.5).into();
-								//	let mut color_mat = materials.get_mut(&pmove_square_render.material).unwrap();
-								//	color_mat.color = Color::rgb(0.5, 0.5, 0.5);
+									let ent = *square_entities.get(&SquarePosition{x: pmove.x, y: pmove.y}).unwrap();
+									commands.entity(ent).insert(SquareState::PossibleMove);
 									println!("Possible move: {:?} {:?}", pmove.x, pmove.y);
 								}
 							}
@@ -172,13 +221,15 @@ impl Plugin for BoardPlugin {
 		&self,
 		app: &mut App,
 	) {
-		app.add_event::<PieceMoved>()
+		app.insert_resource(HashMap::<SquarePosition, Entity>::new())
+			.add_event::<PieceMoved>()
 			.add_startup_system(prep_board.system())
 			.add_system_set(SystemSet::on_enter(consts::GameState::Playing).with_system(on_enter.system()))
 			.add_system_set(
 				SystemSet::on_update(consts::GameState::Playing)
 					.with_system(square_clicked.system())
-					.with_system(escape_key.system()),
+					.with_system(escape_key.system())
+					.with_system(square_selected_changed),
 			)
 			.add_system_set(SystemSet::on_exit(consts::GameState::Playing).with_system(on_exit.system()));
 	}
