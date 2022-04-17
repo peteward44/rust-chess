@@ -1,13 +1,14 @@
 use crate::consts;
+use bevy::prelude::Component;
 
 
-#[derive(Clone, Copy, Eq, PartialEq, Debug, Hash)]
+#[derive(Component, Clone, Copy, Eq, PartialEq, Debug, Hash)]
 pub struct BoardPiece {
 	pub piece: consts::PieceType,
 	pub is_white: bool,
 }
 
-
+#[derive(Component)]
 pub struct BoardState {
 	pub state: [[Option<BoardPiece>; consts::BOARD_WIDTH as usize]; consts::BOARD_HEIGHT as usize],
 }

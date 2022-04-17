@@ -7,6 +7,7 @@ pub const DRAW_WINDOW_H: f32 = 1440.0;
 pub const ASPECT_RATIO: f32 = DRAW_WINDOW_W / DRAW_WINDOW_H;
 
 // entity
+#[derive(Component)]
 pub struct ScaleCamera {
 	pub window_w: i32,
 	pub window_h: i32,
@@ -23,7 +24,7 @@ pub struct ScaleCameraPlugin;
 impl Plugin for ScaleCameraPlugin {
 	fn build(
 		&self,
-		app: &mut AppBuilder,
+		app: &mut App,
 	) {
 		app.add_system(on_window_create.system())
 			.add_system(on_window_resize.system())

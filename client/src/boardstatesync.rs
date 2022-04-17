@@ -1,13 +1,13 @@
 use crate::boardstate::{BoardPiece, BoardState};
 use crate::consts;
-use bevy::prelude::*;
+use bevy::{prelude::*};
 
 // reflects any changes to the BoardState resource to the piece sprites displayed
 
 fn piecetype_to_sprite_index(
 	piece_type: &consts::PieceType,
 	is_white: bool,
-) -> u32 {
+) -> usize {
 	let mut base = 0;
 	if is_white == true {
 		base = 6;
@@ -53,7 +53,7 @@ fn on_enter(
 	asset_server: Res<AssetServer>,
 	mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-	let texture_handle: Handle<Texture> = asset_server.get_handle("textures/primary/pieces.png");
+	let texture_handle: Handle<Image> = asset_server.get_handle("textures/primary/pieces.png");
 	let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(consts::PIECE_WIDTH, consts::PIECE_HEIGHT), 6, 2);
 	let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
@@ -87,7 +87,7 @@ pub struct BoardStateSyncPlugin;
 impl Plugin for BoardStateSyncPlugin {
 	fn build(
 		&self,
-		app: &mut AppBuilder,
+		app: &mut App,
 	) {
 		app.insert_resource(BoardState::default())
 			.add_system_set(SystemSet::on_enter(consts::GameState::Playing).with_system(on_enter.system()))

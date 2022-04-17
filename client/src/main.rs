@@ -1,4 +1,4 @@
-use bevy::{prelude::*, render::pass::ClearColor};
+use bevy::{prelude::*};
 
 mod board;
 mod boardstate;
@@ -20,9 +20,9 @@ use network::NetworkPlugin;
 
 fn main() {
 	let vsync = false;
-	let mut builder = App::build();
+	let mut app = App::new();
 
-	builder
+	app
 		.insert_resource(WindowDescriptor {
 			title: "Chess".to_string(),
 			width: 1366.0,
@@ -47,7 +47,7 @@ fn main() {
 		.add_plugin(quit::QuitPlugin)
 		.add_startup_system(setup.system());
 
-	builder.run();
+	app.run();
 }
 
 fn setup(
@@ -62,9 +62,12 @@ fn setup(
 	//	.spawn(UiCameraBundle::default())
 	// background
 	commands.spawn_bundle(SpriteBundle {
-		material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
 		transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
-		sprite: Sprite::new(Vec2::new(scalecamera::DRAW_WINDOW_W, scalecamera::DRAW_WINDOW_H)),
+		sprite: Sprite {
+			custom_size: Some(Vec2::new(scalecamera::DRAW_WINDOW_W, scalecamera::DRAW_WINDOW_H)),
+			color: Color::rgb(0.5, 0.5, 1.0).into(),
+			..Default::default()
+		},
 		..Default::default()
 	});
 

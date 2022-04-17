@@ -28,7 +28,7 @@ pub struct QuitPlugin;
 impl Plugin for QuitPlugin {
 	fn build(
 		&self,
-		app: &mut AppBuilder,
+		app: &mut App,
 	) {
 		app.insert_resource(DelayTimer(Timer::from_seconds(2.0, true)))
 			.add_system_set(SystemSet::on_enter(consts::GameState::Quit).with_system(on_enter.system()))

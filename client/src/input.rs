@@ -5,7 +5,7 @@ pub struct InputPlugin;
 impl Plugin for InputPlugin {
 	fn build(
 		&self,
-		app: &mut AppBuilder,
+		app: &mut App,
 	) {
 		app.add_system(player_movement_system.system());
 	}

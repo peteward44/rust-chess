@@ -8,7 +8,7 @@ pub struct NetworkPlugin;
 impl Plugin for NetworkPlugin {
 	fn build(
 		&self,
-		app: &mut AppBuilder,
+		app: &mut App,
 	) {
 		app.add_startup_system(network_setup.system());
 	}

@@ -6,12 +6,12 @@ use bevy::prelude::*;
 
 // classes
 #[allow(dead_code)]
-#[derive(Debug, Clone)]
+#[derive(Component, Debug, Clone)]
 struct Square {
-	material: Handle<ColorMaterial>,
+	color: Color,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Component, Debug, Clone)]
 struct SquarePosition {
 	x: i32,
 	y: i32,
@@ -50,9 +50,12 @@ fn on_enter(
 			let pos = consts::get_square_position(x, y);
 			commands
 				.spawn_bundle(SpriteBundle {
-					material: square_render.material.clone(),
 					transform: Transform::from_translation(Vec3::new(pos.0, pos.1, 0.0)),
-					sprite: Sprite::new(Vec2::new(consts::SQUARE_WIDTH, consts::SQUARE_HEIGHT)),
+					sprite: Sprite {
+						custom_size: Some(Vec2::new(consts::SQUARE_WIDTH, consts::SQUARE_HEIGHT)),
+						color: square_render.color,
+						..Default::default()
+					},
 					..Default::default()
 				})
 				.insert_bundle(SpritePickerBundle::default())
@@ -65,30 +68,32 @@ fn square_clicked(
 	mut board_render_state: ResMut<BoardRenderState>,
 	board_state: Res<BoardState>,
 	mut materials: ResMut<Assets<ColorMaterial>>,
-	mut interaction_query: Query<(&Interaction, &SquarePosition), (Changed<Interaction>, With<SquarePosition>)>,
+	mut interaction_query: Query<(&Interaction, &SquarePosition, &mut Sprite), (Changed<Interaction>, With<SquarePosition>, With<Sprite>)>,
 ) {
-	for (interaction, square) in interaction_query.iter_mut() {
+	for (interaction, square, mut sprite) in interaction_query.iter_mut() {
 		// let square = square_query.get_mut(children[0]).unwrap();
 		match *interaction {
 			Interaction::Clicked => {
 				println!("Clicked {:?} {:?}", square.x, square.y);
 				if Rules::is_occupied(&board_state, square.x, square.y) {
 					let mut is_same = false;
-					match &board_render_state.selected {
+					let selected = board_render_state.selected.clone();
+					match selected {
 						Some(selected_square) => {
 							// reset already-selected square to original colour
-							let square_render = &board_render_state.squares[selected_square.x as usize][selected_square.y as usize];
-							let mut color_mat = materials.get_mut(&square_render.material).unwrap();
-							color_mat.color = get_square_color(selected_square.x, selected_square.y);
+							board_render_state.squares[selected_square.x as usize][selected_square.y as usize].color = get_square_color(selected_square.x, selected_square.y);
+						//	let mut color_mat = materials.get_mut(&square_render.material).unwrap();
+						//	color_mat.color = get_square_color(selected_square.x, selected_square.y);
 							is_same = selected_square.x == square.x && selected_square.y == square.y;
 						}
 						None => {}
 					}
 					// set newly selected square to selected colour
 					if !is_same {
-						let square_render = &board_render_state.squares[square.x as usize][square.y as usize];
-						let mut color_mat = materials.get_mut(&square_render.material).unwrap();
-						color_mat.color = Color::rgb(1.0, 1.0, 1.0);
+						board_render_state.squares[square.x as usize][square.y as usize].color = Color::rgb(1.0, 1.0, 1.0);
+						sprite.color = Color::rgb(1.0, 1.0, 1.0);
+					//	let mut color_mat = materials.get_mut(&square_render.material).unwrap();
+					//	color_mat.color = Color::rgb(1.0, 1.0, 1.0);
 						board_render_state.selected = Some((*square).clone());
 
 						// highlight squares available to move to
@@ -99,9 +104,9 @@ fn square_clicked(
 								println!("Move: {:?}", board_piece.piece);
 								for pmove in possible_moves.iter() {
 									// change colour of potential move squares
-									let pmove_square_render = &board_render_state.squares[pmove.x as usize][pmove.y as usize];
-									let mut color_mat = materials.get_mut(&pmove_square_render.material).unwrap();
-									color_mat.color = Color::rgb(0.5, 0.5, 0.5);
+									board_render_state.squares[pmove.x as usize][pmove.y as usize].color = Color::rgb(0.5, 0.5, 0.5).into();
+								//	let mut color_mat = materials.get_mut(&pmove_square_render.material).unwrap();
+								//	color_mat.color = Color::rgb(0.5, 0.5, 0.5);
 									println!("Possible move: {:?} {:?}", pmove.x, pmove.y);
 								}
 							}
@@ -146,9 +151,10 @@ fn prep_board(
 ) {
 	let squares: [[Square; consts::BOARD_WIDTH as usize]; consts::BOARD_HEIGHT as usize] = array_init::array_init(|x: usize| {
 		array_init::array_init(|y: usize| {
-			let colour = get_square_color(x as i32, y as i32);
-			let material = materials.add(colour.into());
-			Square { material: material }
+			let color = get_square_color(x as i32, y as i32);
+			Square { color: color.into() }
+		//	let material = materials.add(colour.into());
+		//	Square { material: material }
 		})
 	});
 	commands.insert_resource(BoardRenderState {
@@ -164,7 +170,7 @@ pub struct BoardPlugin;
 impl Plugin for BoardPlugin {
 	fn build(
 		&self,
-		app: &mut AppBuilder,
+		app: &mut App,
 	) {
 		app.add_event::<PieceMoved>()
 			.add_startup_system(prep_board.system())

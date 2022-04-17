@@ -4,7 +4,7 @@ use bevy::{asset::LoadState, prelude::*};
 // Responsible for loading all textures in the "primary" folder and displaying a splash screen whilst it's done.
 // Starts operating when game state move to "Loading", will move the state to "Menu" when done
 
-
+#[derive(Component)]
 struct Background;
 
 
@@ -23,9 +23,12 @@ fn on_enter(
 	// black background on top of everything else until it's loaded
 	commands
 		.spawn_bundle(SpriteBundle {
-			material: materials.add(Color::rgb(0.1, 0.1, 0.2).into()),
 			transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
-			sprite: Sprite::new(Vec2::new(scalecamera::DRAW_WINDOW_W, scalecamera::DRAW_WINDOW_H)),
+			sprite: Sprite {
+				custom_size: Some(Vec2::new(scalecamera::DRAW_WINDOW_W, scalecamera::DRAW_WINDOW_H)),
+				color: Color::rgb(0.1, 0.1, 0.2).into(),
+				..Default::default()
+			},
 			..Default::default()
 		})
 		.insert(Background);
@@ -63,7 +66,7 @@ pub struct LoadTexturesPlugin;
 impl Plugin for LoadTexturesPlugin {
 	fn build(
 		&self,
-		app: &mut AppBuilder,
+		app: &mut App,
 	) {
 		app.init_resource::<LoadHandles>()
 			.add_system_set(SystemSet::on_enter(consts::GameState::Loading).with_system(on_enter.system()))
