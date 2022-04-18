@@ -90,7 +90,7 @@ impl Plugin for BoardStateSyncPlugin {
 		app: &mut App,
 	) {
 		app.insert_resource(BoardState::default())
-			.add_system_set(SystemSet::on_enter(consts::GameState::Playing).with_system(on_enter.system()))
-			.add_system_set(SystemSet::on_exit(consts::GameState::Playing).with_system(on_exit.system()));
+			.add_system_set(SystemSet::on_enter(consts::GameState::Playing).with_system(on_enter))
+			.add_system_set(SystemSet::on_exit(consts::GameState::Playing).with_system(on_exit));
 	}
 }

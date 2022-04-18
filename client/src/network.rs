@@ -10,7 +10,7 @@ impl Plugin for NetworkPlugin {
 		&self,
 		app: &mut App,
 	) {
-		app.add_startup_system(network_setup.system());
+		app.add_startup_system(network_setup);
 	}
 }
 

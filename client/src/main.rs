@@ -19,7 +19,6 @@ use network::NetworkPlugin;
 
 
 fn main() {
-	let vsync = false;
 	let mut app = App::new();
 
 	app
@@ -30,7 +29,7 @@ fn main() {
 			resizable: true,
 			// mode: window::WindowMode::Fullscreen {use_size: false},
 			mode: bevy::window::WindowMode::Windowed,
-			vsync: vsync,
+			present_mode: bevy::window::PresentMode::Immediate,
 			..Default::default()
 		})
 		.insert_resource(ClearColor(Color::rgb(0.9, 0.9, 0.9)))
@@ -45,7 +44,7 @@ fn main() {
 		.add_plugin(scalecamera::ScaleCameraPlugin)
 		.add_plugin(hitarea::HitAreaPlugin)
 		.add_plugin(quit::QuitPlugin)
-		.add_startup_system(setup.system());
+		.add_startup_system(setup);
 
 	app.run();
 }

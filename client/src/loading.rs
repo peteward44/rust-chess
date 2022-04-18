@@ -68,8 +68,8 @@ impl Plugin for LoadTexturesPlugin {
 		app: &mut App,
 	) {
 		app.init_resource::<LoadHandles>()
-			.add_system_set(SystemSet::on_enter(consts::GameState::Loading).with_system(on_enter.system()))
-			.add_system_set(SystemSet::on_update(consts::GameState::Loading).with_system(on_update.system()))
-			.add_system_set(SystemSet::on_exit(consts::GameState::Loading).with_system(on_exit.system()));
+			.add_system_set(SystemSet::on_enter(consts::GameState::Loading).with_system(on_enter))
+			.add_system_set(SystemSet::on_update(consts::GameState::Loading).with_system(on_update))
+			.add_system_set(SystemSet::on_exit(consts::GameState::Loading).with_system(on_exit));
 	}
 }

@@ -29,10 +29,10 @@ impl Plugin for HitAreaPlugin {
 	) {
 		app.insert_resource(MouseLoc(Vec2::new(0.0, 0.0)))
 			.insert_resource(WindowSize(Vec2::new(0.0, 0.0)))
-			.add_system(detect_mouse_event.system())
-			.add_system(mouse_movement_updating_system.system())
-			.add_system(on_window_create.system())
-			.add_system(on_window_resize.system());
+			.add_system(detect_mouse_event)
+			.add_system(mouse_movement_updating_system)
+			.add_system(on_window_create)
+			.add_system(on_window_resize);
 	}
 }
 
@@ -112,10 +112,10 @@ fn detect_mouse_event(
 	mouse_pos: ResMut<MouseLoc>,
 	window_size: Res<WindowSize>,
 	mut my_event_reader: EventReader<MouseButtonInput>,
-	mut query_set: QuerySet<(
-		QueryState<(&SpritePicker, &Sprite, &mut Interaction, &GlobalTransform)>,
-		QueryState<(&HitArea, &mut Interaction, &GlobalTransform)>,
-		QueryState<(&HitArea, &mut Interaction), Without<GlobalTransform>>,
+	mut query_set: ParamSet<(
+		Query<(&SpritePicker, &Sprite, &mut Interaction, &GlobalTransform)>,
+		Query<(&HitArea, &mut Interaction, &GlobalTransform)>,
+		Query<(&HitArea, &mut Interaction), Without<GlobalTransform>>,
 	)>,
 	camera_query: Query<(&HitAreaCamera, &GlobalTransform)>,
 ) {
@@ -126,7 +126,7 @@ fn detect_mouse_event(
 		for (_camera, camera_transform) in camera_query.iter() {
 			let cam_mat = camera_transform.compute_matrix();
 			// sprites with SpritePicker type trait
-			for (_sprite_picker, sprite, mut interaction, transform) in query_set.q0().iter_mut() {
+			for (_sprite_picker, sprite, mut interaction, transform) in query_set.p0().iter_mut() {
 				match sprite.custom_size {
 					Some(size) => {
 						let sprite_mat = transform.compute_matrix().inverse() * cam_mat;
@@ -137,12 +137,12 @@ fn detect_mouse_event(
 				}
 			}
 			// HitAreas with GlobalTransform traits
-			for (hitarea, mut interaction, transform) in query_set.q1().iter_mut() {
+			for (hitarea, mut interaction, transform) in query_set.p1().iter_mut() {
 				let sprite_mat = transform.compute_matrix().inverse() * cam_mat;
 				process_hitarea(&mut interaction, &hitarea.size, &sprite_mat, &point, event);
 			}
 			// Then HitAreas without GlobalTransform trait
-			for (hitarea, mut interaction) in query_set.q2().iter_mut() {
+			for (hitarea, mut interaction) in query_set.p2().iter_mut() {
 				process_hitarea(&mut interaction, &hitarea.size, &cam_mat, &point, &event);
 			}
 		}

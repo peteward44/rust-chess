@@ -144,8 +144,8 @@ impl Plugin for MenuPlugin {
 		&self,
 		app: &mut App,
 	) {
-		app.add_system(button_system.system())
-			.add_system_set(SystemSet::on_enter(consts::GameState::Menu).with_system(on_enter.system()))
-			.add_system_set(SystemSet::on_exit(consts::GameState::Menu).with_system(on_exit.system()));
+		app.add_system(button_system)
+			.add_system_set(SystemSet::on_enter(consts::GameState::Menu).with_system(on_enter))
+			.add_system_set(SystemSet::on_exit(consts::GameState::Menu).with_system(on_exit));
 	}
 }

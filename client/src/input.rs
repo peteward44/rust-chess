@@ -7,7 +7,7 @@ impl Plugin for InputPlugin {
 		&self,
 		app: &mut App,
 	) {
-		app.add_system(player_movement_system.system());
+		app.add_system(player_movement_system);
 	}
 }
 

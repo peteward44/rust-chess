@@ -217,14 +217,14 @@ impl Plugin for BoardPlugin {
 	) {
 		app.insert_resource(HashMap::<SquarePosition, Entity>::new())
 			.add_event::<PieceMoved>()
-			.add_startup_system(prep_board.system())
-			.add_system_set(SystemSet::on_enter(consts::GameState::Playing).with_system(on_enter.system()))
+			.add_startup_system(prep_board)
+			.add_system_set(SystemSet::on_enter(consts::GameState::Playing).with_system(on_enter))
 			.add_system_set(
 				SystemSet::on_update(consts::GameState::Playing)
-					.with_system(square_clicked.system())
-					.with_system(escape_key.system())
+					.with_system(square_clicked)
+					.with_system(escape_key)
 					.with_system(square_selected_changed),
 			)
-			.add_system_set(SystemSet::on_exit(consts::GameState::Playing).with_system(on_exit.system()));
+			.add_system_set(SystemSet::on_exit(consts::GameState::Playing).with_system(on_exit));
 	}
 }

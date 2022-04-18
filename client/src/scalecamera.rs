@@ -26,9 +26,9 @@ impl Plugin for ScaleCameraPlugin {
 		&self,
 		app: &mut App,
 	) {
-		app.add_system(on_window_create.system())
-			.add_system(on_window_resize.system())
-			.add_system(camera_movement_system.system());
+		app.add_system(on_window_create)
+			.add_system(on_window_resize)
+			.add_system(camera_movement_system);
 	}
 }
 
