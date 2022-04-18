@@ -16,7 +16,6 @@ struct LoadHandles {
 
 fn on_enter(
 	mut commands: Commands,
-	mut materials: ResMut<Assets<ColorMaterial>>,
 	mut load_handles: ResMut<LoadHandles>,
 	asset_server: Res<AssetServer>,
 ) {

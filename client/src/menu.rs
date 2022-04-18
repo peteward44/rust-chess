@@ -49,7 +49,6 @@ fn add_button(
 
 fn on_enter(
 	mut commands: Commands,
-	mut materials: ResMut<Assets<ColorMaterial>>,
 	asset_server: Res<AssetServer>,
 ) {
 	// camera
@@ -110,7 +109,6 @@ fn button_system(
 		match *interaction {
 			Interaction::Clicked => {
 				// text.sections[0].value = "Press".to_string();
-				// *material = button_materials.pressed.clone();
 				*color = PRESSED_BUTTON.into();
 				match text.sections[0].value.as_str() {
 					"Resume Game" => {}
@@ -128,12 +126,10 @@ fn button_system(
 			Interaction::Hovered => {
 				*color = HOVERED_BUTTON.into();
 				// text.sections[0].value = "Hover".to_string();
-				// *material = button_materials.hovered.clone();
 			}
 			Interaction::None => {
 				*color = NORMAL_BUTTON.into();
 				// text.sections[0].value = "Button".to_string();
-				// *material = button_materials.normal.clone();
 			}
 		}
 	}

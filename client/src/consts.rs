@@ -5,8 +5,11 @@ pub const BOARD_HEIGHT: i32 = 8;
 pub const SQUARE_WIDTH: f32 = 180.0;
 pub const SQUARE_HEIGHT: f32 = 180.0;
 
-pub const PIECE_WIDTH: f32 = 135.0;
-pub const PIECE_HEIGHT: f32 = 180.0;
+pub const PIECE_TEXTURE_WIDTH: f32 = 300.0;
+pub const PIECE_TEXTURE_HEIGHT: f32 = 400.0;
+
+pub const PIECE_RENDER_WIDTH: f32 = 135.0;
+pub const PIECE_RENDER_HEIGHT: f32 = 180.0;
 
 // cosmetics
 pub const BOARD_COLOUR1: (f32, f32, f32) = (0.9, 0.9, 0.6);
@@ -22,7 +25,7 @@ pub fn get_square_position(
 }
 
 
-#[derive(Clone, Copy, Eq, PartialEq, Debug, Hash)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum GameState {
 	Init,
 	Loading,

@@ -53,13 +53,11 @@ fn main() {
 fn setup(
 	mut commands: Commands,
 	mut state: ResMut<State<consts::GameState>>,
-	mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
 	commands
 		.spawn_bundle(OrthographicCameraBundle::new_2d())
 		.insert(scalecamera::ScaleCamera::default())
 		.insert(hitarea::HitAreaCamera);
-	//	.spawn(UiCameraBundle::default())
 	// background
 	commands.spawn_bundle(SpriteBundle {
 		transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),

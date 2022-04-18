@@ -97,8 +97,6 @@ fn on_enter(
 }
 
 fn square_selected_changed(
-	mut board_render_state: ResMut<BoardRenderState>,
-	board_state: Res<BoardState>,
 	mut selected_query: Query<(&SquareState, &SquarePosition, &mut Sprite), (Changed<SquareState>, With<SquarePosition>, With<Sprite>)>,
 ) {
 	for (square_state, square, mut sprite) in selected_query.iter_mut() {
@@ -120,11 +118,10 @@ fn square_clicked(
 	mut commands: Commands,
 	mut board_render_state: ResMut<BoardRenderState>,
 	board_state: Res<BoardState>,
-	mut square_entities: ResMut<HashMap<SquarePosition, Entity>>,
+	square_entities: ResMut<HashMap<SquarePosition, Entity>>,
 	mut interaction_query: Query<(Entity, &Interaction, &SquarePosition), (Changed<Interaction>, With<SquarePosition>)>,
 ) {
 	for (entity, interaction, square) in interaction_query.iter_mut() {
-		// let square = square_query.get_mut(children[0]).unwrap();
 		match *interaction {
 			Interaction::Clicked => {
 				println!("Clicked {:?} {:?}", square.x, square.y);
@@ -196,14 +193,11 @@ fn escape_key(
 
 fn prep_board(
 	mut commands: Commands,
-	mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
 	let squares: [[Square; consts::BOARD_WIDTH as usize]; consts::BOARD_HEIGHT as usize] = array_init::array_init(|x: usize| {
 		array_init::array_init(|y: usize| {
 			let color = get_square_color(x as i32, y as i32);
 			Square { color: color.into() }
-		//	let material = materials.add(colour.into());
-		//	Square { material: material }
 		})
 	});
 	commands.insert_resource(BoardRenderState {

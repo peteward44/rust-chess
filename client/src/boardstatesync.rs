@@ -36,7 +36,7 @@ fn add_piece(
 		.spawn_bundle(SpriteSheetBundle {
 			transform: Transform {
 				translation: Vec3::new(pos.0, pos.1, 0.1),
-				//scale: Vec3::splat(0.05),
+				scale: Vec3::new(consts::PIECE_RENDER_WIDTH / consts::PIECE_TEXTURE_WIDTH, consts::PIECE_RENDER_HEIGHT / consts::PIECE_TEXTURE_HEIGHT, 1.0),
 				..Default::default()
 			},
 			sprite: TextureAtlasSprite::new(index),
@@ -54,7 +54,7 @@ fn on_enter(
 	mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
 	let texture_handle: Handle<Image> = asset_server.get_handle("textures/primary/pieces.png");
-	let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(consts::PIECE_WIDTH, consts::PIECE_HEIGHT), 6, 2);
+	let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(consts::PIECE_TEXTURE_WIDTH, consts::PIECE_TEXTURE_HEIGHT), 6, 2);
 	let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
 	for y in 0..consts::BOARD_HEIGHT {
