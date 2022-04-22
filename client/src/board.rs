@@ -2,6 +2,7 @@ use crate::boardstate::BoardState;
 use crate::consts;
 use crate::hitarea::SpritePickerBundle;
 use crate::rules::Rules;
+use crate::boardstate::BoardPiece;
 use bevy::prelude::*;
 use std::collections::HashMap;
 use std::ops::{Add, Mul};
@@ -33,6 +34,12 @@ impl Mul<i32> for SquarePosition {
     fn mul(self, rhs: i32) -> Self::Output {
         Self{ x: self.x * rhs, y: self.y * rhs }
     }
+}
+
+#[derive(Component, Debug, Clone)]
+pub struct MoveTo {
+	from: SquarePosition,
+	to: SquarePosition,
 }
 
 
@@ -119,6 +126,7 @@ fn square_clicked(
 	mut board_render_state: ResMut<BoardRenderState>,
 	board_state: Res<BoardState>,
 	square_entities: ResMut<HashMap<SquarePosition, Entity>>,
+	piece_map: ResMut<consts::PieceMap>,
 	mut interaction_query: Query<(Entity, &Interaction, &SquarePosition), (Changed<Interaction>, With<SquarePosition>)>,
 ) {
 	for (entity, interaction, square) in interaction_query.iter_mut() {
@@ -144,7 +152,7 @@ fn square_clicked(
 						board_render_state.selected = Some((*square).clone());
 
 						// highlight squares available to move to
-						let piece = board_state.get_square(square.x, square.y);
+						let piece = board_state.get_piece_by_position(square.x, square.y);
 						match piece {
 							Some(board_piece) => {
 								let possible_moves = Rules::get_piece_possible_moves(&board_state, square.x, square.y, &board_piece);
@@ -160,6 +168,31 @@ fn square_clicked(
 						}
 					} else {
 						board_render_state.selected = None;
+					}
+				} else {
+					let selected = board_render_state.selected.clone();
+					match selected {
+						Some(selected_square) => {
+							let piece = board_state.get_piece_by_position(selected_square.x, selected_square.y);
+							match piece {
+								Some(board_piece) => {
+									let possible_moves = Rules::get_piece_possible_moves(&board_state, selected_square.x, selected_square.y, &board_piece);
+									// see if clicked square is a possible move
+									println!("Move: {:?}", board_piece.piece);
+									let found = possible_moves.iter().find(|m| m.x == square.x && m.y == square.y);
+									match found {
+										Some(_found_move) => {
+											println!("Valid move: {:?}", board_piece.piece);
+											let ent = *piece_map.get(&board_piece.id).unwrap();
+											commands.entity(ent).insert(MoveTo{from: selected_square, to: *square});
+										}
+										_ => {}
+									}
+								}
+								_ => {}
+							}
+						}
+						None => {}
 					}
 				}
 			}
@@ -207,6 +240,21 @@ fn prep_board(
 }
 
 
+fn on_piece_moveto(
+	mut commands: Commands,
+	mut board_render_state: ResMut<BoardRenderState>,
+	board_state: Res<BoardState>,
+	square_entities: ResMut<HashMap<SquarePosition, Entity>>,
+	piece_map: ResMut<consts::PieceMap>,
+	mut moveto_query: Query<(Entity, &MoveTo, &BoardPiece), (Changed<MoveTo>, With<BoardPiece>)>,
+) {
+	for (entity, moveto, board_piece) in moveto_query.iter_mut() {
+		println!("Move: {0}x{1}", moveto.from.x, moveto.from.y);
+	}	
+}
+
+
+
 // Plugin
 pub struct BoardPlugin;
 
@@ -223,6 +271,7 @@ impl Plugin for BoardPlugin {
 				SystemSet::on_update(consts::GameState::Playing)
 					.with_system(square_clicked)
 					.with_system(escape_key)
+					.with_system(on_piece_moveto)
 					.with_system(square_selected_changed),
 			)
 			.add_system_set(SystemSet::on_exit(consts::GameState::Playing).with_system(on_exit));

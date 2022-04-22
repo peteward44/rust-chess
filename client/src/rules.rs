@@ -20,7 +20,7 @@ impl Rules {
 		x: i32,
 		y: i32,
 	) -> bool {
-		return board_state.get_square(x, y) != None;
+		return board_state.get_piece_by_position(x, y) != None;
 	}
 
 	pub fn is_occupied_with_colour(
@@ -29,7 +29,7 @@ impl Rules {
 		y: i32,
 		is_white: bool,
 	) -> bool {
-		let square = &board_state.get_square(x, y);
+		let square = &board_state.get_piece_by_position(x, y);
 		match square {
 			Some(square_inside) => {
 				return square_inside.is_white == is_white;

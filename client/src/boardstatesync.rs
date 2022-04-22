@@ -29,10 +29,11 @@ fn add_piece(
 	commands: &mut Commands,
 	texture_atlas_handle: Handle<TextureAtlas>,
 	piece: &BoardPiece,
+	piece_map: &mut ResMut<consts::PieceMap>,
 ) {
 	let index = piecetype_to_sprite_index(&piece.piece, piece.is_white);
 	let pos = consts::get_square_position(x, y);
-	commands
+	let entity_id = commands
 		.spawn_bundle(SpriteSheetBundle {
 			transform: Transform {
 				translation: Vec3::new(pos.0, pos.1, 0.1),
@@ -43,7 +44,9 @@ fn add_piece(
 			texture_atlas: texture_atlas_handle,
 			..Default::default()
 		})
-		.insert(piece.clone());
+		.insert(piece.clone())
+		.id();
+	piece_map.insert(piece.id, entity_id);
 }
 
 
@@ -52,6 +55,7 @@ fn on_enter(
 	board_state: Res<BoardState>,
 	asset_server: Res<AssetServer>,
 	mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+	mut piece_map: ResMut<consts::PieceMap>,
 ) {
 	let texture_handle: Handle<Image> = asset_server.get_handle("textures/primary/pieces.png");
 	let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(consts::PIECE_TEXTURE_WIDTH, consts::PIECE_TEXTURE_HEIGHT), 6, 2);
@@ -59,10 +63,10 @@ fn on_enter(
 
 	for y in 0..consts::BOARD_HEIGHT {
 		for x in 0..consts::BOARD_WIDTH {
-			let square = board_state.get_square(x, y);
-			match square {
+			let piece_option = board_state.get_piece_by_position(x, y);
+			match piece_option {
 				Some(piece) => {
-					add_piece(x, y, &mut commands, texture_atlas_handle.clone(), &piece);
+					add_piece(x, y, &mut commands, texture_atlas_handle.clone(), &piece, &mut piece_map);
 				}
 				None => {}
 			}
@@ -83,13 +87,15 @@ fn on_exit(
 
 pub struct BoardStateSyncPlugin;
 
+// TODO: add different setups for pre-made situations & games loaded from state / network
 
 impl Plugin for BoardStateSyncPlugin {
 	fn build(
 		&self,
 		app: &mut App,
 	) {
-		app.insert_resource(BoardState::default())
+		app.insert_resource(consts::PieceMap::new())
+			.insert_resource(BoardState::default())
 			.add_system_set(SystemSet::on_enter(consts::GameState::Playing).with_system(on_enter))
 			.add_system_set(SystemSet::on_exit(consts::GameState::Playing).with_system(on_exit));
 	}

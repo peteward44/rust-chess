@@ -1,3 +1,5 @@
+use bevy::prelude::Entity;
+
 // sizes
 pub const BOARD_WIDTH: i32 = 8;
 pub const BOARD_HEIGHT: i32 = 8;
@@ -35,6 +37,8 @@ pub enum GameState {
 	Quit,
 }
 
+pub type PieceId = i32;
+pub type PieceMap = std::collections::HashMap::<PieceId, Entity>;
 
 #[derive(Clone, Copy, Eq, PartialEq, Debug, Hash)]
 pub enum PieceType {
