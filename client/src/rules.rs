@@ -130,7 +130,7 @@ impl Rules {
 				break;
 			}
 		}
-		for dx in x..consts::BOARD_WIDTH {
+		for dx in (x+1)..consts::BOARD_WIDTH {
 			if Rules::gen_move(&mut vec, &board_state, dx, y, &piece) {
 				break;
 			}
@@ -140,7 +140,7 @@ impl Rules {
 				break;
 			}
 		}
-		for dy in y..consts::BOARD_HEIGHT {
+		for dy in (y+1)..consts::BOARD_HEIGHT {
 			if Rules::gen_move(&mut vec, &board_state, x, dy, &piece) {
 				break;
 			}

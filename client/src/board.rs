@@ -15,9 +15,9 @@ struct Square {
 }
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug)]
-struct SquarePosition {
-	x: i32,
-	y: i32,
+pub struct SquarePosition {
+	pub x: i32,
+	pub y: i32,
 }
 
 impl Add for SquarePosition {
@@ -38,8 +38,8 @@ impl Mul<i32> for SquarePosition {
 
 #[derive(Component, Debug, Clone)]
 pub struct MoveTo {
-	from: SquarePosition,
-	to: SquarePosition,
+	pub from: SquarePosition,
+	pub to: SquarePosition,
 }
 
 
@@ -134,14 +134,12 @@ fn square_clicked(
 			Interaction::Clicked => {
 				println!("Clicked {:?} {:?}", square.x, square.y);
 				if Rules::is_occupied(&board_state, square.x, square.y) {
-					let mut is_same = false;
+					//let mut is_same = false;
 					let selected = board_render_state.selected.clone();
-					match selected {
-						Some(selected_square) => {
-							is_same = selected_square.x == square.x && selected_square.y == square.y;
-						}
-						None => {}
-					}
+					let is_same = match selected {
+						Some(selected_square) => selected_square.x == square.x && selected_square.y == square.y,
+						None => false,
+					};
 					// reset all square states
 					for entity in square_entities.values() {
 						commands.entity(*entity).insert(SquareState::None);
@@ -170,8 +168,7 @@ fn square_clicked(
 						board_render_state.selected = None;
 					}
 				} else {
-					let selected = board_render_state.selected.clone();
-					match selected {
+					match board_render_state.selected {
 						Some(selected_square) => {
 							let piece = board_state.get_piece_by_position(selected_square.x, selected_square.y);
 							match piece {
@@ -185,6 +182,14 @@ fn square_clicked(
 											println!("Valid move: {:?}", board_piece.piece);
 											let ent = *piece_map.get(&board_piece.id).unwrap();
 											commands.entity(ent).insert(MoveTo{from: selected_square, to: *square});
+											commands.entity(entity).insert(SquareState::None);
+											board_render_state.selected = None;
+											for pmove in possible_moves.iter() {
+												let move_square = *square_entities.get(&SquarePosition{x: pmove.x, y: pmove.y}).unwrap();
+												commands.entity(move_square).insert(SquareState::None);
+											}
+											let home_square = *square_entities.get(&SquarePosition{x: selected_square.x, y: selected_square.y}).unwrap();
+											commands.entity(home_square).insert(SquareState::None);
 										}
 										_ => {}
 									}
@@ -243,17 +248,21 @@ fn prep_board(
 fn on_piece_moveto(
 	mut commands: Commands,
 	mut board_render_state: ResMut<BoardRenderState>,
-	board_state: Res<BoardState>,
-	square_entities: ResMut<HashMap<SquarePosition, Entity>>,
+	mut board_state: ResMut<BoardState>,
+	mut square_entities: ResMut<HashMap<SquarePosition, Entity>>,
 	piece_map: ResMut<consts::PieceMap>,
-	mut moveto_query: Query<(Entity, &MoveTo, &BoardPiece), (Changed<MoveTo>, With<BoardPiece>)>,
+	mut moveto_query: Query<(Entity, &MoveTo, &BoardPiece, &mut Transform), (Changed<MoveTo>, With<BoardPiece>)>,
 ) {
-	for (entity, moveto, board_piece) in moveto_query.iter_mut() {
-		println!("Move: {0}x{1}", moveto.from.x, moveto.from.y);
-	}	
+	for (entity, moveto, board_piece, mut transform) in moveto_query.iter_mut() {
+		println!("Moving: {0}x{1} -> {2}x{3}", moveto.from.x, moveto.from.y, moveto.to.x, moveto.to.y);
+		// Update the board state when the square_entities resource is changed
+		board_state.update_piece_position(&moveto);
+		let pos = consts::get_square_position(moveto.to.x, moveto.to.y);
+		let square_render = &board_render_state.squares[moveto.to.x as usize][moveto.to.y as usize];
+		transform.translation.x = pos.0;
+		transform.translation.y = pos.1;
+	}
 }
-
-
 
 // Plugin
 pub struct BoardPlugin;

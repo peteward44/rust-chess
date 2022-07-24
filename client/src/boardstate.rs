@@ -1,4 +1,5 @@
 use crate::consts;
+use crate::board;
 use bevy::prelude::Component;
 
 #[derive(Component, Clone, Copy, Eq, PartialEq, Debug, Hash)]
@@ -42,6 +43,11 @@ impl BoardState {
 			}
 		}
 		None
+	}
+
+	pub fn update_piece_position(&mut self, moveto: &board::MoveTo) {
+		self.state[moveto.to.x as usize][moveto.to.y as usize] = self.state[moveto.from.x as usize][moveto.from.y as usize];
+		self.state[moveto.from.x as usize][moveto.from.y as usize] = None;
 	}
 
 	pub fn new_game_setup(white_playing: bool) -> Self {
