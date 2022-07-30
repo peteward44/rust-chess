@@ -20,7 +20,7 @@ fn add_button(
 			style: Style {
 				size: Size::new(Val::Px(250.0), Val::Px(65.0)),
 				// center button
-				margin: Rect::all(Val::Auto),
+				margin: UiRect::all(Val::Auto),
 				// horizontally center child text
 				justify_content: JustifyContent::Center,
 				// vertically center child text
@@ -32,14 +32,13 @@ fn add_button(
 		})
 		.with_children(|parent| {
 			parent.spawn_bundle(TextBundle {
-				text: Text::with_section(
+				text: Text::from_section(
 					name,
 					TextStyle {
 						font: asset_server.get_handle("fonts/primary/FiraSans-Bold.ttf"),
 						font_size: 40.0,
 						color: Color::rgb(0.9, 0.9, 0.9),
 					},
-					Default::default(),
 				),
 				..Default::default()
 			});
@@ -51,8 +50,6 @@ fn on_enter(
 	mut commands: Commands,
 	asset_server: Res<AssetServer>,
 ) {
-	// camera
-	commands.spawn_bundle(UiCameraBundle::default()).insert(NeedsDespawning);
 	// root node
 	commands
 		.spawn_bundle(NodeBundle {

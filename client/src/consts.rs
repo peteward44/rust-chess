@@ -29,7 +29,6 @@ pub fn get_square_position(
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum GameState {
-	Init,
 	Loading,
 	Menu,
 	Playing,

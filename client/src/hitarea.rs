@@ -1,5 +1,5 @@
 use bevy::window::{WindowCreated, WindowResized};
-use bevy::{input::mouse::MouseButtonInput, input::ElementState, prelude::*, window::CursorMoved};
+use bevy::{input::mouse::MouseButtonInput, input::ButtonState, prelude::*, window::CursorMoved};
 
 #[derive(Component)]
 struct MouseLoc(Vec2);
@@ -100,9 +100,9 @@ fn process_hitarea(
 	let half_width = size.x / 2.0;
 	let half_height = size.y / 2.0;
 	if vec.x >= -half_width && vec.x < half_width && vec.y >= -half_height && vec.y < half_height {
-		if event.state == ElementState::Pressed && *interaction != Interaction::Clicked {
+		if event.state == ButtonState::Pressed && *interaction != Interaction::Clicked {
 			*interaction = Interaction::Clicked;
-		} else if event.state == ElementState::Released && *interaction == Interaction::Clicked {
+		} else if event.state == ButtonState::Released && *interaction == Interaction::Clicked {
 			*interaction = Interaction::None;
 		}
 	}

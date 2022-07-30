@@ -33,7 +33,7 @@ fn main() {
 			..Default::default()
 		})
 		.insert_resource(ClearColor(Color::rgb(0.9, 0.9, 0.9)))
-		.add_state(consts::GameState::Init)
+		.add_state(consts::GameState::Loading)
 		.add_plugins(DefaultPlugins)
 		.add_plugin(loading::LoadTexturesPlugin)
 		.add_plugin(menu::MenuPlugin)
@@ -54,7 +54,7 @@ fn setup(
 	mut state: ResMut<State<consts::GameState>>,
 ) {
 	commands
-		.spawn_bundle(OrthographicCameraBundle::new_2d())
+		.spawn_bundle(Camera2dBundle::default())
 		.insert(scalecamera::ScaleCamera::default())
 		.insert(hitarea::HitAreaCamera);
 	// background
@@ -67,6 +67,4 @@ fn setup(
 		},
 		..Default::default()
 	});
-
-	state.set(consts::GameState::Loading).unwrap();
 }
