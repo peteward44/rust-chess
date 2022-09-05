@@ -919,6 +919,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "btoi"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "97c0869a9faa81f8bbf8102371105d6d0a7b79167a04c340b04ab16892246a11"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
 name = "bumpalo"
 version = "3.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1038,6 +1047,7 @@ dependencies = [
  "array-init",
  "bevy",
  "rand 0.8.5",
+ "shakmaty",
  "websocket",
 ]
 
@@ -3237,6 +3247,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "shakmaty"
+version = "0.21.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "76cd30e231e2f9cbb4684a9cd5937d7310f3536e9161ce21991c3b2bd2c565ea"
+dependencies = [
+ "arrayvec",
+ "bitflags",
+ "btoi",
+]
+
+[[package]]
 name = "sharded-slab"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3848,7 +3869,7 @@ dependencies = [
  "js-sys",
  "log 0.4.16",
  "naga",
- "parking_lot 0.11.2",
+ "parking_lot 0.12.1",
  "raw-window-handle",
  "smallvec 1.8.0",
  "wasm-bindgen",
@@ -3874,7 +3895,7 @@ dependencies = [
  "fxhash",
  "log 0.4.16",
  "naga",
- "parking_lot 0.11.2",
+ "parking_lot 0.12.1",
  "profiling",
  "raw-window-handle",
  "smallvec 1.8.0",
@@ -3911,7 +3932,7 @@ dependencies = [
  "metal",
  "naga",
  "objc",
- "parking_lot 0.11.2",
+ "parking_lot 0.12.1",
  "profiling",
  "range-alloc",
  "raw-window-handle",

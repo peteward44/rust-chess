@@ -1,10 +1,8 @@
-use super::consts;
+use crate::consts;
+use crate::components;
 use bevy::prelude::*;
 
 // Displays user menu
-
-#[derive(Component)]
-struct NeedsDespawning;
 
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
@@ -46,7 +44,7 @@ fn add_button(
 }
 
 
-fn on_enter(
+pub fn on_enter(
 	mut commands: Commands,
 	asset_server: Res<AssetServer>,
 ) {
@@ -62,7 +60,7 @@ fn on_enter(
 			color: Color::rgb(0.1, 0.1, 0.20).into(),
 			..Default::default()
 		})
-		.insert(NeedsDespawning)
+		.insert(components::gui::NeedsDespawning)
 		.with_children(|grandparent| {
 			// node holding button column
 			grandparent
@@ -86,9 +84,9 @@ fn on_enter(
 }
 
 
-fn on_exit(
+pub fn on_exit(
 	mut commands: Commands,
-	mut query: Query<(&NeedsDespawning, Entity)>,
+	mut query: Query<(&components::gui::NeedsDespawning, Entity)>,
 ) {
 	for (_, entity) in query.iter_mut() {
 		commands.entity(entity).despawn_recursive();
@@ -96,7 +94,7 @@ fn on_exit(
 }
 
 
-fn button_system(
+pub fn button_system(
 	mut interaction_query: Query<(&Interaction, &mut UiColor, &Children), (Changed<Interaction>, With<Button>)>,
 	mut text_query: Query<&mut Text>,
 	mut state: ResMut<State<consts::GameState>>,
@@ -129,20 +127,5 @@ fn button_system(
 				// text.sections[0].value = "Button".to_string();
 			}
 		}
-	}
-}
-
-
-// Plugin
-pub struct MenuPlugin;
-
-impl Plugin for MenuPlugin {
-	fn build(
-		&self,
-		app: &mut App,
-	) {
-		app.add_system(button_system)
-			.add_system_set(SystemSet::on_enter(consts::GameState::Menu).with_system(on_enter))
-			.add_system_set(SystemSet::on_exit(consts::GameState::Menu).with_system(on_exit));
 	}
 }

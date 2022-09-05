@@ -11,6 +11,7 @@ bevy = { version = "0.8.0" }
 rand = "*"
 websocket = "0.26.2"
 array-init = "*"
+shakmaty = "*"
 
 [profile.dev]
 opt-level = 1

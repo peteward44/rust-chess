@@ -1,4 +1,5 @@
-use super::{consts, scalecamera};
+use crate::{consts};
+use super::scalecamera;
 use bevy::{asset::LoadState, prelude::*};
 
 // Responsible for loading all textures in the "primary" folder and displaying a splash screen whilst it's done.
