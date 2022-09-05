@@ -1,4 +1,5 @@
 use bevy::{prelude::*};
+use shakmaty;
 
 mod consts;
 mod plugins;
@@ -52,7 +53,8 @@ fn main() {
 			)
 			.add_system_set(SystemSet::on_exit(consts::GameState::Playing).with_system(systems::board::on_exit))
 
-		.insert_resource(resources::board_piecestate::BoardPieceState::new());
+		.insert_resource(resources::board_piecestate::BoardPieceState::new())
+		.insert_resource(shakmaty::Chess::default());
 
 	app.run();
 }

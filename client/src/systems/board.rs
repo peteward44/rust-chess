@@ -4,18 +4,25 @@ use crate::resources;
 use crate::plugins;
 use bevy::input::*;
 use bevy::prelude::*;
-
+use shakmaty::{Position};
 
 pub fn on_startup(
 	mut commands: Commands,
 	mut board_render_state: ResMut<resources::board_renderstate::BoardRenderState>,
 	mut board_piece_state: ResMut<resources::board_piecestate::BoardPieceState>,
+	chess: Res<shakmaty::Chess>,
 	asset_server: Res<AssetServer>,
 	mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
 	board_render_state.init(&mut commands);
-	board_piece_state.new_game_setup(true);
-	board_piece_state.spawn_ecs_components(&mut commands, asset_server, texture_atlases);
+	// board_piece_state.new_game_setup(true);
+	
+	// let legals = chess.legal_moves();
+	// for mv in legals.iter() {
+	// 	println!("{:?}", mv);
+	// }
+
+	board_piece_state.spawn_ecs_components_shakmaty(&mut commands, asset_server, texture_atlases, chess);
 }
 
 pub fn on_enter(
@@ -70,6 +77,7 @@ pub fn square_clicked(
 	mut commands: Commands,
 	mut board_render_state: ResMut<resources::board_renderstate::BoardRenderState>,
 	board_piece_state: Res<resources::board_piecestate::BoardPieceState>,
+	chess: Res<shakmaty::Chess>,
 	mut event_reader: EventReader<plugins::hitarea::InteractionEvent>,
 ) {
 	for event in event_reader.iter() {
@@ -82,13 +90,13 @@ pub fn square_clicked(
 					board_render_state.clear_selected_square(&mut commands);
 				} else {
 					let has_selected = board_render_state.has_selected_square();
-					let piece = board_piece_state.get_piece(square.x, square.y);
+					let piece = chess.board().piece_at(shakmaty::Square::from_coords(shakmaty::File::ALL[square.x as usize], shakmaty::Rank::ALL[square.y as usize])); //board_piece_state.get_piece(square.x, square.y);
 					let mut enemy_occupied = false;
 					let mut friendly_occupied = false;
 					match piece {
 						Some(board_piece) => {
-							enemy_occupied = board_piece.is_white == false;
-							friendly_occupied = board_piece.is_white == true;
+							enemy_occupied = board_piece.color != shakmaty::Color::White;
+							friendly_occupied = board_piece.color == shakmaty::Color::White;
 						},
 						_ => {},
 					}

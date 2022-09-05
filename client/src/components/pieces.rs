@@ -1,4 +1,5 @@
 use crate::consts;
+use shakmaty;
 use bevy::prelude::*;
 
 // #[derive(Component, Debug, Clone)]
@@ -16,4 +17,9 @@ pub struct BoardPiece {
 	pub piece: consts::PieceType,
 	pub is_white: bool,
 	pub id: consts::PieceId,
+}
+
+#[derive(Component, Clone, Copy, Eq, PartialEq, Debug, Hash)]
+pub struct BoardPieceShakmaty {
+	pub piece: shakmaty::Piece,
 }
