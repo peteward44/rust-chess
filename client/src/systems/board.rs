@@ -15,13 +15,6 @@ pub fn on_startup(
 	mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
 	board_render_state.init(&mut commands);
-	// board_piece_state.new_game_setup(true);
-	
-	// let legals = chess.legal_moves();
-	// for mv in legals.iter() {
-	// 	println!("{:?}", mv);
-	// }
-
 	board_piece_state.spawn_ecs_components_shakmaty(&mut commands, asset_server, texture_atlases, chess);
 }
 
@@ -62,12 +55,19 @@ pub fn show_possible_moves_on_state_change(
 			components::board::SquareSelectedState::Selected => {
 				let suggested_move = resources::cpu_player::get_best_move(&chess, 2);
 				println!("best move: {:?}", suggested_move);
-				// let possible_moves = board_piece_state.get_possible_moves(pmove.x, pmove.y);
-				// for pmove in possible_moves.iter() {
-				// 	// change colour of potential move squares
-				// 	board_render_state.set_possible_move(&mut commands, pmove.x, pmove.y);
-				// 	println!("Possible move: {:?} {:?}", pmove.x, pmove.y);
-				// }
+				let legal_moves = chess.legal_moves();
+				for m in &legal_moves {
+					// change colour of potential move squares
+					match m.from() {
+						Some(from) => {
+							if from.file() as i32 == square.x && from.rank() as i32 == square.y {
+								board_render_state.set_possible_move(&mut commands, m.to().file() as i32, m.to().rank() as i32);
+							}
+						},
+						_ => {},
+					}
+					//println!("Possible move: {:?} {:?}", pmove.x, pmove.y);
+				}
 			},
 			components::board::SquareSelectedState::None => {
 
@@ -97,10 +97,11 @@ pub fn square_clicked(
 					let piece = chess.board().piece_at(shakmaty_square);
 					let mut enemy_occupied = false;
 					let mut friendly_occupied = false;
+					let turn = chess.turn();
 					match piece {
 						Some(board_piece) => {
-							enemy_occupied = board_piece.color != shakmaty::Color::White;
-							friendly_occupied = board_piece.color == shakmaty::Color::White;
+							enemy_occupied = board_piece.color != turn;
+							friendly_occupied = board_piece.color == turn;
 						},
 						_ => {},
 					}

@@ -188,8 +188,7 @@ pub fn get_weighted_value(piece: &shakmaty::Piece, square: shakmaty::Square) -> 
 			shakmaty::Color::Black => BLACK_PAWN_POSITION_WEIGHTS,
 		},
 	};
-	weights[(7 - square.file() as i32) as usize][square.rank() as usize]
-		+ (get_material_value(piece.role) * 10) as f64
+	weights[(7 - square.rank() as i32) as usize][square.file() as usize] + (get_material_value(piece.role) * 10) as f64
 }
 
 
@@ -330,4 +329,86 @@ pub fn get_best_move(
 	}
 
 	(best_move.unwrap(), board_count, best_move_value)
+}
+
+
+#[cfg(test)]
+mod test {
+	#[test]
+	fn get_weighted_value_white_queen_test() {
+		let bottom_left = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::White, role: shakmaty::Role::Queen}, shakmaty::Square::A1);
+		assert_eq!(89.0, bottom_left);
+		let bottom_right = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::White, role: shakmaty::Role::Queen}, shakmaty::Square::H1);
+		assert_eq!(88.0, bottom_right);
+		let top_left = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::White, role: shakmaty::Role::Queen}, shakmaty::Square::A8);
+		assert_eq!(88.0, top_left);
+		let top_right = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::White, role: shakmaty::Role::Queen}, shakmaty::Square::H8);
+		assert_eq!(88.0, top_right);
+	}
+
+	#[test]
+	fn get_weighted_value_white_king_test() {
+		let bottom_left = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::White, role: shakmaty::Role::King}, shakmaty::Square::A1);
+		assert_eq!(999992.0, bottom_left);
+		let bottom_right = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::White, role: shakmaty::Role::King}, shakmaty::Square::H1);
+		assert_eq!(999992.0, bottom_right);
+		let top_left = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::White, role: shakmaty::Role::King}, shakmaty::Square::A8);
+		assert_eq!(999987.0, top_left);
+		let top_right = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::White, role: shakmaty::Role::King}, shakmaty::Square::H8);
+		assert_eq!(999987.0, top_right);
+	}
+
+	#[test]
+	fn get_weighted_value_black_king_test() {
+		let bottom_left = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::Black, role: shakmaty::Role::King}, shakmaty::Square::A1);
+		assert_eq!(999987.0, bottom_left);
+		let bottom_right = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::Black, role: shakmaty::Role::King}, shakmaty::Square::H1);
+		assert_eq!(999987.0, bottom_right);
+		let top_left = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::Black, role: shakmaty::Role::King}, shakmaty::Square::A8);
+		assert_eq!(999992.0, top_left);
+		let top_right = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::Black, role: shakmaty::Role::King}, shakmaty::Square::H8);
+		assert_eq!(999992.0, top_right);
+	}
+
+	#[test]
+	fn get_weighted_value_white_pawn_test() {
+		let bottom_left = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::White, role: shakmaty::Role::Pawn}, shakmaty::Square::A1);
+		assert_eq!(10.0, bottom_left);
+		let bottom_right = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::White, role: shakmaty::Role::Pawn}, shakmaty::Square::H1);
+		assert_eq!(10.0, bottom_right);
+		let top_left = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::White, role: shakmaty::Role::Pawn}, shakmaty::Square::A8);
+		assert_eq!(10.0, top_left);
+		let top_right = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::White, role: shakmaty::Role::Pawn}, shakmaty::Square::H8);
+		assert_eq!(10.0, top_right);
+
+		let bottom_left_inner = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::White, role: shakmaty::Role::Pawn}, shakmaty::Square::B2);
+		assert_eq!(11.5, bottom_left_inner);
+		let bottom_right_inner = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::White, role: shakmaty::Role::Pawn}, shakmaty::Square::G2);
+		assert_eq!(11.5, bottom_right_inner);
+		let top_left_inner = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::White, role: shakmaty::Role::Pawn}, shakmaty::Square::B7);
+		assert_eq!(15.0, top_left_inner);
+		let top_right_inner = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::White, role: shakmaty::Role::Pawn}, shakmaty::Square::G7);
+		assert_eq!(15.0, top_right_inner);
+	}
+
+	#[test]
+	fn get_weighted_value_black_pawn_test() {
+		let bottom_left = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::Black, role: shakmaty::Role::Pawn}, shakmaty::Square::A1);
+		assert_eq!(10.0, bottom_left);
+		let bottom_right = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::Black, role: shakmaty::Role::Pawn}, shakmaty::Square::H1);
+		assert_eq!(10.0, bottom_right);
+		let top_left = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::Black, role: shakmaty::Role::Pawn}, shakmaty::Square::A8);
+		assert_eq!(10.0, top_left);
+		let top_right = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::Black, role: shakmaty::Role::Pawn}, shakmaty::Square::H8);
+		assert_eq!(10.0, top_right);
+
+		let bottom_left_inner = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::Black, role: shakmaty::Role::Pawn}, shakmaty::Square::B2);
+		assert_eq!(15.0, bottom_left_inner);
+		let bottom_right_inner = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::Black, role: shakmaty::Role::Pawn}, shakmaty::Square::G2);
+		assert_eq!(15.0, bottom_right_inner);
+		let top_left_inner = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::Black, role: shakmaty::Role::Pawn}, shakmaty::Square::B7);
+		assert_eq!(11.5, top_left_inner);
+		let top_right_inner = super::get_weighted_value(&shakmaty::Piece{ color: shakmaty::Color::Black, role: shakmaty::Role::Pawn}, shakmaty::Square::G7);
+		assert_eq!(11.5, top_right_inner);
+	}
 }
