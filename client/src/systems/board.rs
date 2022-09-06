@@ -54,11 +54,14 @@ pub fn show_possible_moves_on_state_change(
 	mut commands: Commands,
 	mut selected_query: Query<(&components::board::SquareSelectedState, &components::board::SquarePosition, &mut Sprite), (Changed<components::board::SquareSelectedState>, With<components::board::SquarePosition>, With<Sprite>)>,
 	board_piece_state: Res<resources::board_piecestate::BoardPieceState>,
+	chess: Res<shakmaty::Chess>,
 	mut board_render_state: ResMut<resources::board_renderstate::BoardRenderState>,
 ) {
 	for (square_state, square, mut sprite) in selected_query.iter_mut() {
 		match *square_state {
 			components::board::SquareSelectedState::Selected => {
+				let suggested_move = resources::cpu_player::get_best_move(&chess, 2);
+				println!("best move: {:?}", suggested_move);
 				// let possible_moves = board_piece_state.get_possible_moves(pmove.x, pmove.y);
 				// for pmove in possible_moves.iter() {
 				// 	// change colour of potential move squares
@@ -84,13 +87,14 @@ pub fn square_clicked(
 		let square = board_render_state.get_square_by_entity(event.entity).unwrap();
 		match event.state {
 			ButtonState::Pressed => {
-				println!("Clicked {:?} {:?}", square.x, square.y);
+				let shakmaty_square = shakmaty::Square::from_coords(shakmaty::File::ALL[square.x as usize], shakmaty::Rank::ALL[square.y as usize]);
+				println!("Clicked {:?} {:?} {:?}", square.x, square.y, shakmaty_square);
 				if board_render_state.is_selected_square(square.x, square.y) {
 					// player clicked on square that was already selected - deselect it	
 					board_render_state.clear_selected_square(&mut commands);
 				} else {
 					let has_selected = board_render_state.has_selected_square();
-					let piece = chess.board().piece_at(shakmaty::Square::from_coords(shakmaty::File::ALL[square.x as usize], shakmaty::Rank::ALL[square.y as usize])); //board_piece_state.get_piece(square.x, square.y);
+					let piece = chess.board().piece_at(shakmaty_square);
 					let mut enemy_occupied = false;
 					let mut friendly_occupied = false;
 					match piece {
