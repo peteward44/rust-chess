@@ -22,15 +22,24 @@ pub enum SquarePossibleMoveState {
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct SquarePosition {
-	pub x: i32,
-	pub y: i32,
+	index: usize,
+}
+
+impl SquarePosition {
+    pub fn new(square: shakmaty::Square) -> Self {
+        Self { index: square as usize }
+    }
+
+    pub fn square(&self) -> shakmaty::Square {
+        shakmaty::Square::ALL[self.index] 
+    }
 }
 
 impl Add for SquarePosition {
     type Output = SquarePosition;
 
     fn add(self, rhs: Self) -> Self::Output {
-        Self{ x: self.x + rhs.x, y: self.y + rhs.y }
+        Self{ index: self.index + rhs.index }
     }
 }
 
@@ -38,7 +47,7 @@ impl Mul<i32> for SquarePosition {
     type Output = SquarePosition;
 
     fn mul(self, rhs: i32) -> Self::Output {
-        Self{ x: self.x * rhs, y: self.y * rhs }
+        Self{ index: self.index * rhs as usize }
     }
 }
 

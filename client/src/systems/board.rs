@@ -30,7 +30,7 @@ pub fn change_square_colour_on_selected_change(
 	board_render_state: Res<resources::board_renderstate::BoardRenderState>,
 ) {
 	for (selected_state, square, possible_move_state, mut sprite) in selected_query.iter_mut() {
-		sprite.color = board_render_state.get_square_color(square.x, square.y, selected_state.clone(), possible_move_state.clone());
+		sprite.color = board_render_state.get_square_color(square.square(), selected_state.clone(), possible_move_state.clone());
 	}
 }
 
@@ -39,7 +39,7 @@ pub fn change_square_colour_on_possible_move_change(
 	board_render_state: Res<resources::board_renderstate::BoardRenderState>,
 ) {
 	for (possible_move_state, square, selected_state, mut sprite) in selected_query.iter_mut() {
-		sprite.color = board_render_state.get_square_color(square.x, square.y, selected_state.clone(), possible_move_state.clone());
+		sprite.color = board_render_state.get_square_color(square.square(), selected_state.clone(), possible_move_state.clone());
 	}
 }
 
@@ -55,13 +55,14 @@ pub fn show_possible_moves_on_state_change(
 			components::board::SquareSelectedState::Selected => {
 				let suggested_move = resources::cpu_player::get_best_move(&chess, 2);
 				println!("best move: {:?}", suggested_move);
+				board_render_state.clear_possible_moves(&mut commands);
 				let legal_moves = chess.legal_moves();
 				for m in &legal_moves {
 					// change colour of potential move squares
 					match m.from() {
 						Some(from) => {
-							if from.file() as i32 == square.x && from.rank() as i32 == square.y {
-								board_render_state.set_possible_move(&mut commands, m.to().file() as i32, m.to().rank() as i32);
+							if from == square.square() {
+								board_render_state.set_possible_move(&mut commands, m.to());
 							}
 						},
 						_ => {},
@@ -70,7 +71,7 @@ pub fn show_possible_moves_on_state_change(
 				}
 			},
 			components::board::SquareSelectedState::None => {
-
+		//		board_render_state.clear_possible_moves(&mut commands);
 			},
 		}
 	}
@@ -87,14 +88,14 @@ pub fn square_clicked(
 		let square = board_render_state.get_square_by_entity(event.entity).unwrap();
 		match event.state {
 			ButtonState::Pressed => {
-				let shakmaty_square = shakmaty::Square::from_coords(shakmaty::File::ALL[square.x as usize], shakmaty::Rank::ALL[square.y as usize]);
-				println!("Clicked {:?} {:?} {:?}", square.x, square.y, shakmaty_square);
-				if board_render_state.is_selected_square(square.x, square.y) {
+				println!("Clicked {:?}", square);
+				if board_render_state.is_selected_square(square) {
 					// player clicked on square that was already selected - deselect it	
 					board_render_state.clear_selected_square(&mut commands);
+					board_render_state.clear_possible_moves(&mut commands);
 				} else {
 					let has_selected = board_render_state.has_selected_square();
-					let piece = chess.board().piece_at(shakmaty_square);
+					let piece = chess.board().piece_at(square);
 					let mut enemy_occupied = false;
 					let mut friendly_occupied = false;
 					let turn = chess.turn();
@@ -110,7 +111,7 @@ pub fn square_clicked(
 							// capture enemy piece if occupied by other side
 						} else if friendly_occupied {
 							// select the new piece
-							board_render_state.set_selected_square(&mut commands, square.x, square.y);
+							board_render_state.set_selected_square(&mut commands, square);
 						} else {
 							// move selected piece to new empty position
 						}
@@ -118,15 +119,14 @@ pub fn square_clicked(
 						if enemy_occupied {
 							// TODO: display which pieces are under threat from this enemy piece
 						} else if friendly_occupied {
-							board_render_state.set_selected_square(&mut commands, square.x, square.y);
+							board_render_state.set_selected_square(&mut commands, square);
 						}
 					}
 				}
 			},
 			ButtonState::Released => {
-				println!("Released {:?} {:?}", square.x, square.y);
+				println!("Released {:?}", square);
 			},
-			_ => {},
 		}
 	}
 }

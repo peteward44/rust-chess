@@ -51,7 +51,7 @@ impl BoardPieceState {
 			match piece_option {
 				Some(piece) => {
 					let sprite_index = piecetype_to_sprite_index_shakmaty(piece.role, piece.color);
-					let pos = consts::get_square_position(square.file() as i32, square.rank() as i32);
+					let pos = consts::get_square_position(square);
 					commands
 						.spawn_bundle(SpriteSheetBundle {
 							transform: Transform {
