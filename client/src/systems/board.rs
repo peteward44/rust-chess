@@ -4,15 +4,15 @@ use crate::resources;
 use crate::plugins;
 use bevy::input::*;
 use bevy::prelude::*;
-use shakmaty::{Position};
+use shakmaty::{Position, Move};
 
 pub fn on_startup(
 	mut commands: Commands,
 	mut board_render_state: ResMut<resources::board_renderstate::BoardRenderState>,
-	mut board_piece_state: ResMut<resources::board_piecestate::BoardPieceState>,
+	board_piece_state: Res<resources::board_piecestate::BoardPieceState>,
 	chess: Res<shakmaty::Chess>,
 	asset_server: Res<AssetServer>,
-	mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+	texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
 	board_render_state.init(&mut commands);
 	board_piece_state.spawn_ecs_components_shakmaty(&mut commands, asset_server, texture_atlases, chess);
@@ -45,33 +45,33 @@ pub fn change_square_colour_on_possible_move_change(
 
 pub fn show_possible_moves_on_state_change(
 	mut commands: Commands,
-	mut selected_query: Query<(&components::board::SquareSelectedState, &components::board::SquarePosition, &mut Sprite), (Changed<components::board::SquareSelectedState>, With<components::board::SquarePosition>, With<Sprite>)>,
-	board_piece_state: Res<resources::board_piecestate::BoardPieceState>,
 	chess: Res<shakmaty::Chess>,
 	mut board_render_state: ResMut<resources::board_renderstate::BoardRenderState>,
+	mut event_reader: EventReader<components::board::SquareSelectedEvent>,
 ) {
-	for (square_state, square, mut sprite) in selected_query.iter_mut() {
-		match *square_state {
-			components::board::SquareSelectedState::Selected => {
+	for event in event_reader.iter() {
+		match event.square {
+			Some(square) => {
 				let suggested_move = resources::cpu_player::get_best_move(&chess, 2);
 				println!("best move: {:?}", suggested_move);
 				board_render_state.clear_possible_moves(&mut commands);
 				let legal_moves = chess.legal_moves();
+				let mut moves: Vec<shakmaty::Square> = vec!();
 				for m in &legal_moves {
 					// change colour of potential move squares
 					match m.from() {
 						Some(from) => {
-							if from == square.square() {
-								board_render_state.set_possible_move(&mut commands, m.to());
+							if from == square {
+								moves.push(m.to());
 							}
 						},
 						_ => {},
 					}
-					//println!("Possible move: {:?} {:?}", pmove.x, pmove.y);
 				}
+				board_render_state.set_possible_moves(&mut commands, &moves);
 			},
-			components::board::SquareSelectedState::None => {
-		//		board_render_state.clear_possible_moves(&mut commands);
+			_ => {
+				board_render_state.clear_possible_moves(&mut commands);
 			},
 		}
 	}
@@ -80,9 +80,9 @@ pub fn show_possible_moves_on_state_change(
 pub fn square_clicked(
 	mut commands: Commands,
 	mut board_render_state: ResMut<resources::board_renderstate::BoardRenderState>,
-	board_piece_state: Res<resources::board_piecestate::BoardPieceState>,
-	chess: Res<shakmaty::Chess>,
+	mut chess: ResMut<shakmaty::Chess>,
 	mut event_reader: EventReader<plugins::hitarea::InteractionEvent>,
+	mut event_writer: EventWriter<components::board::SquareSelectedEvent>,
 ) {
 	for event in event_reader.iter() {
 		let square = board_render_state.get_square_by_entity(event.entity).unwrap();
@@ -91,8 +91,7 @@ pub fn square_clicked(
 				println!("Clicked {:?}", square);
 				if board_render_state.is_selected_square(square) {
 					// player clicked on square that was already selected - deselect it	
-					board_render_state.clear_selected_square(&mut commands);
-					board_render_state.clear_possible_moves(&mut commands);
+					board_render_state.clear_selected_square(&mut commands, &mut event_writer);
 				} else {
 					let has_selected = board_render_state.has_selected_square();
 					let piece = chess.board().piece_at(square);
@@ -111,15 +110,25 @@ pub fn square_clicked(
 							// capture enemy piece if occupied by other side
 						} else if friendly_occupied {
 							// select the new piece
-							board_render_state.set_selected_square(&mut commands, square);
+							board_render_state.set_selected_square(&mut commands, square, &mut event_writer);
 						} else {
 							// move selected piece to new empty position
+							let selected_square = board_render_state.get_selected_square().unwrap();
+							let turn_move = shakmaty::Move::Normal {
+								role: chess.board().piece_at(selected_square).unwrap().role,
+								from: selected_square,
+								capture: None,
+								to: square,
+								promotion: None,
+							};
+							chess.play_unchecked(&turn_move);
+							board_render_state.clear_selected_square(&mut commands, &mut event_writer);
 						}
 					} else {
 						if enemy_occupied {
 							// TODO: display which pieces are under threat from this enemy piece
 						} else if friendly_occupied {
-							board_render_state.set_selected_square(&mut commands, square);
+							board_render_state.set_selected_square(&mut commands, square, &mut event_writer);
 						}
 					}
 				}
@@ -132,7 +141,7 @@ pub fn square_clicked(
 }
 
 pub fn on_exit(
-	mut commands: Commands,
+	mut _commands: Commands,
 //	mut query: Query<(&Square, Entity)>,
 ) {
 	// for (_square, entity) in query.iter_mut() {
@@ -152,7 +161,7 @@ pub fn escape_key(
 
 
 pub fn on_piece_moveto(
-	mut commands: Commands,
+	mut _commands: Commands,
 	// mut board_render_state: ResMut<BoardRenderState>,
 	// mut board_state: ResMut<BoardState>,
 	// mut square_entities: ResMut<HashMap<SquarePosition, Entity>>,

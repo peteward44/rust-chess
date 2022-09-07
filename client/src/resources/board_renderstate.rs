@@ -21,7 +21,7 @@ impl BoardRenderState {
 
 	pub fn init(
 		&mut self,
-		mut commands: &mut Commands,
+		commands: &mut Commands,
 	) {
 		for square in shakmaty::Square::ALL {
 			let pos = consts::get_square_position(square);
@@ -103,6 +103,12 @@ impl BoardRenderState {
 		None
 	}
 
+	pub fn get_selected_square(
+		&self,
+	) -> Option<shakmaty::Square> {
+		self.selected
+	}
+
 	pub fn is_selected_square(
 		&self,
 		square: shakmaty::Square,
@@ -126,15 +132,23 @@ impl BoardRenderState {
 		&mut self,
 		commands: &mut Commands,
 		square: shakmaty::Square,
+		event_writer: &mut EventWriter<components::board::SquareSelectedEvent>,
 	) {
-		self.clear_selected_square(commands);
+		match self.selected {
+			Some(square) => {
+				commands.entity(self.entity_id_map[square as usize].unwrap()).insert(components::board::SquareSelectedState::None);
+			},
+			_ => {},
+		};
 		commands.entity(self.entity_id_map[square as usize].unwrap()).insert(components::board::SquareSelectedState::Selected);
 		self.selected = Some(square);
+		event_writer.send(components::board::SquareSelectedEvent{ square: self.selected });
 	}
 
 	pub fn clear_selected_square(
 		&mut self,
 		commands: &mut Commands,
+		event_writer: &mut EventWriter<components::board::SquareSelectedEvent>,
 	) {
 		match self.selected {
 			Some(square) => {
@@ -143,14 +157,18 @@ impl BoardRenderState {
 			_ => {},
 		};
 		self.selected = None;
+		event_writer.send(components::board::SquareSelectedEvent{ square: self.selected });
 	}
 
-	pub fn set_possible_move(
+	pub fn set_possible_moves(
 		&mut self,
 		commands: &mut Commands,
-		square: shakmaty::Square,
+		squares: &Vec<shakmaty::Square>,
 	) {
-		commands.entity(self.entity_id_map[square as usize].unwrap()).insert(components::board::SquarePossibleMoveState::PossibleMove);
+		self.clear_possible_moves(commands);
+		for square in squares.iter() {
+			commands.entity(self.entity_id_map[*square as usize].unwrap()).insert(components::board::SquarePossibleMoveState::PossibleMove);
+		}
 	}
 
 	pub fn clear_possible_moves(

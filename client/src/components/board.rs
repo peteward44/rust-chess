@@ -14,6 +14,10 @@ pub enum SquareSelectedState {
 	Selected,
 }
 
+pub struct SquareSelectedEvent {
+    pub square: Option<shakmaty::Square>,
+}
+
 #[derive(Component, Debug, Clone, PartialEq, Eq)]
 pub enum SquarePossibleMoveState {
 	None,

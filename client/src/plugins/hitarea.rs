@@ -93,7 +93,7 @@ impl HitAreaBundle {
 
 fn process_hitarea(
 	entity: Entity,
-	mut my_event_writer: &mut EventWriter<InteractionEvent>,
+	my_event_writer: &mut EventWriter<InteractionEvent>,
 	event: &MouseButtonInput,
 	size: &Vec2,
 	hitarea_matrix: &Mat4,

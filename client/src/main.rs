@@ -39,6 +39,7 @@ fn main() {
 			.add_system_set(SystemSet::on_update(consts::GameState::Quit).with_system(systems::gui_quit::on_update))
 
 		.insert_resource(resources::board_renderstate::BoardRenderState::new())
+		.add_event::<components::board::SquareSelectedEvent>()
 		.add_startup_system(systems::board::on_startup)
 		// 	.add_event::<PieceMoved>()
 			.add_system_set(SystemSet::on_enter(consts::GameState::Playing).with_system(systems::board::on_enter))
@@ -61,7 +62,7 @@ fn main() {
 
 fn setup(
 	mut commands: Commands,
-	mut state: ResMut<State<consts::GameState>>,
+	mut _state: ResMut<State<consts::GameState>>,
 ) {
 	commands
 		.spawn_bundle(Camera2dBundle::default())
