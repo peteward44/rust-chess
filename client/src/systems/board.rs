@@ -112,17 +112,22 @@ pub fn square_clicked(
 							// select the new piece
 							board_render_state.set_selected_square(&mut commands, square, &mut event_writer);
 						} else {
-							// move selected piece to new empty position
+							// move selected piece to new empty position if it's an allowed move
 							let selected_square = board_render_state.get_selected_square().unwrap();
-							let turn_move = shakmaty::Move::Normal {
-								role: chess.board().piece_at(selected_square).unwrap().role,
-								from: selected_square,
-								capture: None,
-								to: square,
-								promotion: None,
-							};
-							chess.play_unchecked(&turn_move);
-							board_render_state.clear_selected_square(&mut commands, &mut event_writer);
+							let selected_piece_role = chess.board().piece_at(selected_square).unwrap().role;
+							let mut candidates = chess.legal_moves();
+							candidates.retain(|m| {
+								match *m {
+									Move::Normal { role: r, to: t, from: f, .. } => t == square && r == selected_piece_role && f == selected_square,
+									Move::Put { role: r, to: t } => false,
+									Move::EnPassant { to: t, .. } => /*role == Role::Pawn && t == to*/false,
+									Move::Castle { .. } => false,
+								}
+							});
+							if candidates.len() > 0 {
+								chess.play_unchecked(&candidates[0]);
+								board_render_state.clear_selected_square(&mut commands, &mut event_writer);
+							}
 						}
 					} else {
 						if enemy_occupied {
