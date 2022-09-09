@@ -1,10 +1,11 @@
 use bevy::prelude::*;
 use shakmaty::{Position};
-
+use std::collections::HashMap;
 use crate::consts;
 use crate::components;
 
 pub struct BoardPieceState {
+	entity_map: HashMap<shakmaty::Square, Entity>,
 }
 
 
@@ -30,11 +31,12 @@ fn piecetype_to_sprite_index_shakmaty(
 impl BoardPieceState {
 	pub fn new() -> Self {
 		BoardPieceState {
+			entity_map: HashMap::new(),
 		}
 	}
 
 	pub fn spawn_ecs_components_shakmaty(
-		&self,
+		&mut self,
 		commands: &mut Commands,
 		asset_server: Res<AssetServer>,
 		mut texture_atlases: ResMut<Assets<TextureAtlas>>,
@@ -52,7 +54,7 @@ impl BoardPieceState {
 				Some(piece) => {
 					let sprite_index = piecetype_to_sprite_index_shakmaty(piece.role, piece.color);
 					let pos = consts::get_square_position(square);
-					commands
+					let entity_id = commands
 						.spawn_bundle(SpriteSheetBundle {
 							transform: Transform {
 								translation: Vec3::new(pos.0, pos.1, 0.1),
@@ -63,10 +65,30 @@ impl BoardPieceState {
 							texture_atlas: texture_atlas_handle.clone(),
 							..Default::default()
 						})
-						.insert(components::pieces::BoardPieceShakmaty{ piece });
+						.insert(components::pieces::BoardPiece{ piece, square })
+						.id();
+					self.entity_map.insert(square, entity_id);
 				},
 				_ => {},
 			}
+		}
+	}
+
+	pub fn move_piece(
+		&mut self,
+		commands: &mut Commands,
+		piece: &shakmaty::Piece,
+		from: shakmaty::Square,
+		to: shakmaty::Square,
+	) {
+		match self.entity_map.get(&from) {
+			Some(&entity) => {
+				self.entity_map.remove(&from);
+				self.entity_map.insert(to, entity);
+				commands.entity(entity).insert(components::pieces::BoardPiece{ piece: *piece, square: to })
+					.insert(components::pieces::MoveTo{ from, to });
+			},
+			_ => {},
 		}
 	}
 }

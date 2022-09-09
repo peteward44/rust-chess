@@ -1,17 +1,15 @@
 use shakmaty;
 use bevy::prelude::*;
 
-// #[derive(Component, Debug, Clone)]
-// pub struct MoveTo {
-// 	pub from: SquarePosition,
-// 	pub to: SquarePosition,
-// }
+#[derive(Component, Debug, Clone)]
+pub struct MoveTo {
+	pub from: shakmaty::Square,
+	pub to: shakmaty::Square,
+}
 
-
-// // events
-// pub struct PieceMoved;
 
 #[derive(Component, Clone, Copy, Eq, PartialEq, Debug, Hash)]
-pub struct BoardPieceShakmaty {
+pub struct BoardPiece {
 	pub piece: shakmaty::Piece,
+	pub square: shakmaty::Square,
 }

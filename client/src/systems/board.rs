@@ -9,7 +9,7 @@ use shakmaty::{Position, Move};
 pub fn on_startup(
 	mut commands: Commands,
 	mut board_render_state: ResMut<resources::board_renderstate::BoardRenderState>,
-	board_piece_state: Res<resources::board_piecestate::BoardPieceState>,
+	mut board_piece_state: ResMut<resources::board_piecestate::BoardPieceState>,
 	chess: Res<shakmaty::Chess>,
 	asset_server: Res<AssetServer>,
 	texture_atlases: ResMut<Assets<TextureAtlas>>,
@@ -80,6 +80,7 @@ pub fn show_possible_moves_on_state_change(
 pub fn square_clicked(
 	mut commands: Commands,
 	mut board_render_state: ResMut<resources::board_renderstate::BoardRenderState>,
+	mut board_piece_state: ResMut<resources::board_piecestate::BoardPieceState>,
 	mut chess: ResMut<shakmaty::Chess>,
 	mut event_reader: EventReader<plugins::hitarea::InteractionEvent>,
 	mut event_writer: EventWriter<components::board::SquareSelectedEvent>,
@@ -114,11 +115,11 @@ pub fn square_clicked(
 						} else {
 							// move selected piece to new empty position if it's an allowed move
 							let selected_square = board_render_state.get_selected_square().unwrap();
-							let selected_piece_role = chess.board().piece_at(selected_square).unwrap().role;
+							let selected_piece = chess.board().piece_at(selected_square).unwrap();
 							let mut candidates = chess.legal_moves();
 							candidates.retain(|m| {
 								match *m {
-									Move::Normal { role: r, to: t, from: f, .. } => t == square && r == selected_piece_role && f == selected_square,
+									Move::Normal { role: r, to: t, from: f, .. } => t == square && r == selected_piece.role && f == selected_square,
 									Move::Put { role: r, to: t } => false,
 									Move::EnPassant { to: t, .. } => /*role == Role::Pawn && t == to*/false,
 									Move::Castle { .. } => false,
@@ -127,6 +128,7 @@ pub fn square_clicked(
 							if candidates.len() > 0 {
 								chess.play_unchecked(&candidates[0]);
 								board_render_state.clear_selected_square(&mut commands, &mut event_writer);
+								board_piece_state.move_piece(&mut commands, &selected_piece, selected_square, square);
 							}
 						}
 					} else {
@@ -166,20 +168,16 @@ pub fn escape_key(
 
 
 pub fn on_piece_moveto(
-	mut _commands: Commands,
-	// mut board_render_state: ResMut<BoardRenderState>,
-	// mut board_state: ResMut<BoardState>,
-	// mut square_entities: ResMut<HashMap<SquarePosition, Entity>>,
-	// piece_map: ResMut<consts::PieceMap>,
-	// mut moveto_query: Query<(Entity, &MoveTo, &BoardPiece, &mut Transform), (Changed<MoveTo>, With<BoardPiece>)>,
+	mut commands: Commands,
+	mut board_render_state: ResMut<resources::board_renderstate::BoardRenderState>,
+	mut board_piece_state: ResMut<resources::board_piecestate::BoardPieceState>,
+	mut moveto_query: Query<(Entity, &components::pieces::MoveTo, &components::pieces::BoardPiece, &mut Transform), (Changed<components::pieces::MoveTo>, With<components::pieces::BoardPiece>)>,
 ) {
-	// for (entity, moveto, board_piece, mut transform) in moveto_query.iter_mut() {
-	// 	println!("Moving: {0}x{1} -> {2}x{3}", moveto.from.x, moveto.from.y, moveto.to.x, moveto.to.y);
-	// 	// Update the board state when the square_entities resource is changed
-	// 	board_state.update_piece_position(&moveto);
-	// 	let pos = consts::get_square_position(moveto.to.x, moveto.to.y);
-	// 	let square_render = &board_render_state.squares[moveto.to.x as usize][moveto.to.y as usize];
-	// 	transform.translation.x = pos.0;
-	// 	transform.translation.y = pos.1;
-	// }
+	for (entity, moveto, board_piece, mut transform) in moveto_query.iter_mut() {
+		println!("Moving: {:?} -> {:?}", moveto.from, moveto.to);
+		let pos = consts::get_square_position(moveto.to);
+		transform.translation.x = pos.0;
+		transform.translation.y = pos.1;
+		commands.entity(entity).remove::<components::pieces::MoveTo>();
+	}
 }
