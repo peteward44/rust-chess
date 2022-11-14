@@ -69,6 +69,8 @@ pub fn show_possible_moves_on_state_change(
 					}
 				}
 				board_render_state.set_possible_moves(&mut commands, &moves);
+				board_render_state.set_recommended_move(&mut commands, suggested_move.0.from().unwrap());
+				board_render_state.set_recommended_move(&mut commands, suggested_move.0.to());
 			},
 			_ => {
 				board_render_state.clear_possible_moves(&mut commands);

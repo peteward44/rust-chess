@@ -68,6 +68,7 @@ impl BoardRenderState {
 			_ => {
 				match possible_move_state {
 					components::board::SquarePossibleMoveState::PossibleMove => Color::rgb(0.5, 0.5, 0.5).into(),
+					components::board::SquarePossibleMoveState::RecommendedMove => Color::rgb(0.6, 0.3, 0.3).into(),
 					_ => self.get_default_square_color(square),
 				}
 			},
@@ -169,6 +170,14 @@ impl BoardRenderState {
 		for square in squares.iter() {
 			commands.entity(self.entity_id_map[*square as usize].unwrap()).insert(components::board::SquarePossibleMoveState::PossibleMove);
 		}
+	}
+
+	pub fn set_recommended_move(
+		&mut self,
+		commands: &mut Commands,
+		square: shakmaty::Square,
+	) {
+		commands.entity(self.entity_id_map[square as usize].unwrap()).insert(components::board::SquarePossibleMoveState::RecommendedMove);
 	}
 
 	pub fn clear_possible_moves(

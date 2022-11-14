@@ -22,6 +22,7 @@ pub struct SquareSelectedEvent {
 pub enum SquarePossibleMoveState {
 	None,
 	PossibleMove,
+    RecommendedMove,
 }
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug)]
