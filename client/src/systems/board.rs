@@ -10,7 +10,7 @@ pub fn on_startup(
 	mut commands: Commands,
 	mut board_render_state: ResMut<resources::board_renderstate::BoardRenderState>,
 	mut board_piece_state: ResMut<resources::board_piecestate::BoardPieceState>,
-	chess: Res<shakmaty::Chess>,
+	chess: Res<components::board::ChessResource>,
 	asset_server: Res<AssetServer>,
 	texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
@@ -45,7 +45,7 @@ pub fn change_square_colour_on_possible_move_change(
 
 pub fn show_possible_moves_on_state_change(
 	mut commands: Commands,
-	chess: Res<shakmaty::Chess>,
+	chess: Res<components::board::ChessResource>,
 	mut board_render_state: ResMut<resources::board_renderstate::BoardRenderState>,
 	mut event_reader: EventReader<components::board::SquareSelectedEvent>,
 ) {
@@ -83,7 +83,7 @@ pub fn square_clicked(
 	mut commands: Commands,
 	mut board_render_state: ResMut<resources::board_renderstate::BoardRenderState>,
 	mut board_piece_state: ResMut<resources::board_piecestate::BoardPieceState>,
-	mut chess: ResMut<shakmaty::Chess>,
+	mut chess: ResMut<components::board::ChessResource>,
 	mut event_reader: EventReader<plugins::hitarea::InteractionEvent>,
 	mut event_writer: EventWriter<components::board::SquareSelectedEvent>,
 ) {

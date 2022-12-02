@@ -9,7 +9,7 @@ use bevy::{asset::LoadState, prelude::*};
 struct Background;
 
 
-#[derive(Default)]
+#[derive(Default, Resource)]
 struct LoadHandles {
 	handles: Vec<HandleUntyped>,
 }

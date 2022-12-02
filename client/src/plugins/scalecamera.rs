@@ -52,7 +52,6 @@ fn on_window_create(
 
 fn on_window_resize(
 	mut resize_event: EventReader<WindowResized>,
-	mut _window: ResMut<WindowDescriptor>,
 	mut query: Query<&mut ScaleCamera>,
 ) {
 	for event in resize_event.iter() {

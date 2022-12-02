@@ -1,10 +1,10 @@
 use bevy::window::{WindowCreated, WindowResized};
 use bevy::{input::mouse::MouseButtonInput, input::ButtonState, prelude::*, window::CursorMoved};
 
-#[derive(Component)]
+#[derive(Resource)]
 struct MouseLoc(Vec2);
 
-#[derive(Component)]
+#[derive(Resource)]
 struct WindowSize(Vec2);
 
 /// Trait to attach to the camera bundle you wish to track
@@ -166,7 +166,6 @@ fn on_window_create(
 // window resize event
 fn on_window_resize(
 	mut resize_event: EventReader<WindowResized>,
-	mut _window: ResMut<WindowDescriptor>,
 	mut window_size: ResMut<WindowSize>,
 ) {
 	for event in resize_event.iter() {

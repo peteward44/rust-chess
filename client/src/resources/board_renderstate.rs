@@ -3,6 +3,7 @@ use crate::consts;
 use crate::components;
 use crate::plugins::hitarea::SpritePickerBundle;
 
+#[derive(Resource)]
 pub struct BoardRenderState {
 	selected: Option<shakmaty::Square>,
 	entity_id_map: [Option<Entity>; shakmaty::Square::ALL.len() as usize],

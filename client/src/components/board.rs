@@ -1,5 +1,28 @@
 use bevy::prelude::*;
-use std::ops::{Add, Mul};
+use std::ops::{Add, Mul, Deref, DerefMut};
+
+#[derive(Resource)]
+pub struct ChessResource(shakmaty::Chess,);
+
+impl Deref for ChessResource {
+    type Target = shakmaty::Chess;
+
+    fn deref(&self) -> &shakmaty::Chess {
+        &self.0
+    }
+}
+
+impl DerefMut for ChessResource {
+    fn deref_mut(&mut self) -> &mut shakmaty::Chess {
+        &mut self.0
+    }
+}
+
+impl ChessResource {
+    pub fn new() -> Self {
+        Self(shakmaty::Chess::default())
+    }
+}
 
 #[allow(dead_code)]
 #[derive(Component, Debug, Clone)]

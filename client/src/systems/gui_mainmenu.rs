@@ -25,7 +25,7 @@ fn add_button(
 				align_items: AlignItems::Center,
 				..Default::default()
 			},
-			color: NORMAL_BUTTON.into(),
+			background_color: NORMAL_BUTTON.into(),
 			..Default::default()
 		})
 		.with_children(|parent| {
@@ -57,7 +57,7 @@ pub fn on_enter(
 				align_items: AlignItems::Center,
 				..Default::default()
 			},
-			color: Color::rgb(0.1, 0.1, 0.20).into(),
+			background_color: Color::rgb(0.1, 0.1, 0.20).into(),
 			..Default::default()
 		})
 		.insert(components::gui::NeedsDespawning)
@@ -72,7 +72,7 @@ pub fn on_enter(
 						align_items: AlignItems::Center,
 						..Default::default()
 					},
-					color: Color::NONE.into(),
+					background_color: Color::NONE.into(),
 					..Default::default()
 				})
 				.with_children(|mut parent| {
@@ -95,7 +95,7 @@ pub fn on_exit(
 
 
 pub fn button_system(
-	mut interaction_query: Query<(&Interaction, &mut UiColor, &Children), (Changed<Interaction>, With<Button>)>,
+	mut interaction_query: Query<(&Interaction, &mut BackgroundColor, &Children), (Changed<Interaction>, With<Button>)>,
 	mut text_query: Query<&mut Text>,
 	mut state: ResMut<State<consts::GameState>>,
 ) {

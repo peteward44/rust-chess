@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+#[derive(Resource)]
 pub struct GuiQuit {
 	pub timer: Timer
 }
@@ -7,7 +8,7 @@ pub struct GuiQuit {
 impl GuiQuit {
 	pub fn new() -> Self {
 		GuiQuit {
-			timer: Timer::from_seconds(2.0, true)
+			timer: Timer::from_seconds(2.0, TimerMode::Once)
 		}
 	}
 }

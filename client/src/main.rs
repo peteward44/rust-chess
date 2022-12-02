@@ -1,5 +1,4 @@
 use bevy::{prelude::*};
-use shakmaty;
 
 mod consts;
 mod plugins;
@@ -11,19 +10,22 @@ fn main() {
 	let mut app = App::new();
 
 	app
-		.insert_resource(WindowDescriptor {
-			title: "Chess".to_string(),
-			width: 1366.0,
-			height: 768.0,
-			resizable: true,
-			// mode: window::WindowMode::Fullscreen {use_size: false},
-			mode: bevy::window::WindowMode::Windowed,
-			present_mode: bevy::window::PresentMode::Immediate,
+		.add_plugins(DefaultPlugins.set(WindowPlugin {
+			window: WindowDescriptor {
+				title: "Chess".to_string(),
+				width: 1366.0,
+				height: 768.0,
+				resizable: true,
+				// mode: window::WindowMode::Fullscreen {use_size: false},
+				mode: bevy::window::WindowMode::Windowed,
+				present_mode: bevy::window::PresentMode::Immediate,
+				..Default::default()
+			},
 			..Default::default()
-		})
+		}))
 		.insert_resource(ClearColor(Color::rgb(0.9, 0.9, 0.9)))
 		.add_state(consts::GameState::Loading)
-		.add_plugins(DefaultPlugins)
+		//.add_plugins(DefaultPlugins)
 		.add_plugin(plugins::loading::LoadTexturesPlugin)
 		.add_plugin(plugins::scalecamera::ScaleCameraPlugin)
 		.add_plugin(plugins::hitarea::HitAreaPlugin)
@@ -55,7 +57,7 @@ fn main() {
 			.add_system_set(SystemSet::on_exit(consts::GameState::Playing).with_system(systems::board::on_exit))
 
 		.insert_resource(resources::board_piecestate::BoardPieceState::new())
-		.insert_resource(shakmaty::Chess::default());
+		.insert_resource(components::board::ChessResource::new());
 
 	app.run();
 }
